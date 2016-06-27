@@ -2,7 +2,7 @@ lax-nginx-conf:
     file.managed:
         - name: /etc/nginx/sites-enabled/lax.conf
         - template: jinja
-{% if pillar.elife.env == 'dev' %}
+{% if pillar.elife.dev %}
         - source: salt://elife-lax/config/etc-nginx-sitesavailable-lax-http.conf
 {% else %}
         - source: salt://elife-lax/config/etc-nginx-sitesavailable-lax-https.conf
