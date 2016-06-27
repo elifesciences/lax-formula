@@ -6,7 +6,7 @@ install-lax:
 
     git.latest:
         - user: {{ pillar.elife.deploy_user.username }}
-        - name: git@github.com:elifesciences/lax.git
+        - name: https://github.com/elifesciences/lax
         - rev: {{ salt['elife.cfg']('project.revision', 'project.branch', 'master') }}
         - branch: {{ salt['elife.branch']() }}
         - target: /srv/lax/
