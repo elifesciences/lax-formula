@@ -21,8 +21,8 @@ cfg-file:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: /srv/lax/app.cfg
         - source: 
-            - salt://elife-lax/config/srv-lax-{{ salt['elife.cfg']('project.branch') }}.cfg
-            - salt://elife-lax/config/srv-lax-app.cfg
+            - salt://lax/config/srv-lax-{{ salt['elife.cfg']('project.branch') }}.cfg
+            - salt://lax/config/srv-lax-app.cfg
         - template: jinja
         - replace: True
         - require:
@@ -49,7 +49,7 @@ lax-ingest-log-file:
 lax-syslog-conf:
     file.managed:
         - name: /etc/syslog-ng/conf.d/lax.conf
-        - source: salt://elife-lax/config/etc-syslog-ng-conf.d-lax.conf
+        - source: salt://lax/config/etc-syslog-ng-conf.d-lax.conf
         - template: jinja
         - require:
             - pkg: syslog-ng

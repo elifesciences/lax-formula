@@ -3,9 +3,9 @@ lax-nginx-conf:
         - name: /etc/nginx/sites-enabled/lax.conf
         - template: jinja
 {% if pillar.elife.dev %}
-        - source: salt://elife-lax/config/etc-nginx-sitesavailable-lax-http.conf
+        - source: salt://lax/config/etc-nginx-sitesavailable-lax-http.conf
 {% else %}
-        - source: salt://elife-lax/config/etc-nginx-sitesavailable-lax-https.conf
+        - source: salt://lax/config/etc-nginx-sitesavailable-lax-https.conf
         - require:
             - cmd: acme-fetch-certs
 {% endif %}
@@ -13,7 +13,7 @@ lax-nginx-conf:
 lax-uwsgi-conf:
     file.managed:
         - name: /srv/lax/uwsgi.ini
-        - source: salt://elife-lax/config/srv-lax-uwsgi.ini
+        - source: salt://lax/config/srv-lax-uwsgi.ini
         - template: jinja
         - require:
             - git: install-lax
@@ -21,7 +21,7 @@ lax-uwsgi-conf:
 uwsgi-lax:
     file.managed:
         - name: /etc/init.d/uwsgi-lax
-        - source: salt://elife-lax/config/etc-init.d-uwsgi-lax
+        - source: salt://lax/config/etc-init.d-uwsgi-lax
         - mode: 755
 
     service.running:
