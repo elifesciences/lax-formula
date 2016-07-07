@@ -5,7 +5,6 @@ base:
         - elife.uwsgi
         - elife.acme
         - elife.postgresql
-        - elife.python-dev
         - lax
         - lax.uwsgi
         # LSH 2016-06-22: disabled until elife-reporting fully resolved
