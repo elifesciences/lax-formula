@@ -67,29 +67,35 @@ lax-db-user:
         - encrypted: True
         - password: {{ pillar.lax.db.password }}
         - refresh_password: True
-        - db_user: {{ pillar.elife.db_root.username }}
 
         {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
-        # random password generated at creation time
+        # remote psql
+        - db_user: {{ salt['elife.cfg']('project.rds_username') }}        
         - db_password: {{ salt['elife.cfg']('project.rds_password') }}
         - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
         - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
         {% else %}
+        - db_user: {{ pillar.elife.db_root.username }}
         - db_password: {{ pillar.elife.db_root.password }}
         {% endif %}
         - createdb: True
 
 lax-db-exists:
     postgres_database.present:
-        - name: {{ pillar.lax.db.name }}
+        {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}    
+        # remote psql
+        - name: {{ salt['elife.cfg']('project.rds_dbname') }}
         - owner: {{ pillar.lax.db.username }}
-        - db_user: {{ pillar.elife.db_root.username }}
-
-        {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
+        - db_user: {{ salt['elife.cfg']('project.rds_username') }}
         - db_password: {{ salt['elife.cfg']('project.rds_password') }}
         - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
         - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
+
         {% else %}
+        # local psql
+        - name: {{ pillar.lax.db.name }}
+        - owner: {{ pillar.lax.db.username }}
+        - db_user: {{ pillar.elife.db_root.username }}
         - db_password: {{ pillar.elife.db_root.password }}
         {% endif %}
 
