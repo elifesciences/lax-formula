@@ -83,13 +83,14 @@ lax-db-exists:
     postgres_database.present:
         - name: {{ pillar.lax.db.name }}
         - owner: {{ pillar.lax.db.username }}
+        - db_user: {{ pillar.elife.db_root.username }}
 
         {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
-        # not sure if first two are necessary
-        - db_user: {{ pillar.elife.db_root.username }}
-        - db_password: {{ pillar.elife.db_root.password }}
+        - db_password: {{ salt['elife.cfg']('project.rds_password') }}
         - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
         - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
+        {% else %}
+        - db_password: {{ pillar.elife.db_root.password }}
         {% endif %}
 
         - require:
