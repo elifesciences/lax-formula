@@ -16,7 +16,7 @@ lax-uwsgi-conf:
         - source: salt://lax/config/srv-lax-uwsgi.ini
         - template: jinja
         - require:
-            - git: install-lax
+            - install-lax
 
 uwsgi-lax:
     file.managed:
@@ -34,6 +34,6 @@ uwsgi-lax:
             - file: lax-nginx-conf
             - file: lax-log-file
         - watch:
-            - git: install-lax
+            - install-lax
             # restart uwsgi if nginx service changes
             - service: nginx-server-service
