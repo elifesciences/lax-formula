@@ -26,7 +26,7 @@ cfg-file:
         - template: jinja
         - replace: True
         - require:
-            - git: install-lax
+            - install-lax
 
 #
 # logging
@@ -112,7 +112,7 @@ configure-lax:
         - cwd: /srv/lax/
         - name: ./install.sh && ./manage.sh collectstatic --noinput
         - require:
-            - git: install-lax
+            - install-lax
             - file: cfg-file
             - file: lax-log-file
             - file: lax-ingest-log-file
