@@ -2,7 +2,7 @@ lax-nginx-conf:
     file.managed:
         - name: /etc/nginx/sites-enabled/lax.conf
         - template: jinja
-        - source: salt://lax/config/etc-nginx-sitesavailable-lax-https.conf
+        - source: salt://lax/config/etc-nginx-sitesavailable-lax.conf
         - require:
             - pkg: nginx-server
 {% if salt['elife.cfg']('cfn.outputs.DomainName') %}
