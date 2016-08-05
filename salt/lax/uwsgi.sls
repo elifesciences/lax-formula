@@ -2,12 +2,11 @@ lax-nginx-conf:
     file.managed:
         - name: /etc/nginx/sites-enabled/lax.conf
         - template: jinja
-{% if pillar.elife.dev %}
-        - source: salt://lax/config/etc-nginx-sitesavailable-lax-http.conf
-{% else %}
         - source: salt://lax/config/etc-nginx-sitesavailable-lax-https.conf
         - require:
-            - cmd: acme-fetch-certs
+            - pkg: nginx-server
+{% if salt['elife.cfg']('cfn.outputs.DomainName') %}
+            - cmd: web-ssl-enabled
 {% endif %}
 
 lax-uwsgi-conf:
