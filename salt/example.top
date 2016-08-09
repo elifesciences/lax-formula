@@ -4,9 +4,9 @@ base:
         - elife.nginx
         - elife.uwsgi
         - elife.postgresql
+        - elife.mercurial
         - lax
         - lax.uwsgi
         # LSH 2016-06-22: disabled until elife-reporting fully resolved
         #- elife-reporting
-        #- elife.mercurial
-        #- lax.adaptors
+        - lax.adaptors
