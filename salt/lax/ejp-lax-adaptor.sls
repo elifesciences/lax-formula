@@ -15,7 +15,24 @@ ejp-lax-adaptor:
 
     cmd.run:
         - cwd: /opt/ejp-lax-adaptor/
+        - user: {{ pillar.elife.deploy_user.username }}
         - name: ./install.sh
         - require:
             - git: ejp-lax-adaptor
 
+# the report is only ever generated daily, about midday.
+# once generated, we want to import the results into lax
+daily-ejp-import:
+    file.managed:
+        - user: {{ pillar.elife.deploy_user.username }}
+        - name: /var/log/lax-daily-ejp-import.log
+        - mode: 740
+
+    cron.present:
+        - user: {{ pillar.elife.deploy_user.username }}
+        - identifier: daily-ejp-import
+        - name: cd /opt/ejp-lax-adaptor/ && ./scrape-ejp-load-lax.sh
+        - minute: 30
+        - hour: 12
+        - require:
+            - file: daily-ejp-import
