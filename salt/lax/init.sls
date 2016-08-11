@@ -5,11 +5,10 @@ install-lax:
         - group: {{ pillar.elife.deploy_user.username }}
 
     builder.git_latest:
-        - name: git@github.com:elifesciences/lax.git
-        - identity: {{ pillar.elife.projects_builder.key or '' }}
+        - user: {{ pillar.elife.deploy_user.username }}
+        - name: https://github.com/elifesciences/lax
         - rev: {{ salt['elife.cfg']('project.revision', 'project.branch', 'master') }}
         - branch: {{ salt['elife.branch']() }}
-        - user: {{ pillar.elife.deploy_user.username }}
         - target: /srv/lax/
         - force_fetch: True
         - force_checkout: True
