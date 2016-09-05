@@ -10,8 +10,8 @@ lax-nginx-conf:
 
 lax-unencrypted-redirect:
     file.symlink:
-        - name: /etc/nginx/sites-available/unencrypted-redirect.conf
-        - target: /etc/nginx/sites-enabled/unencrypted-redirect.conf
+        - name: /etc/nginx/sites-enabled/unencrypted-redirect.conf
+        - target: /etc/nginx/sites-available/unencrypted-redirect.conf
         - require:
             - file: lax-nginx-conf
         - watch:
