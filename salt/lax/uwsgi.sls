@@ -14,8 +14,6 @@ lax-unencrypted-redirect:
         - target: /etc/nginx/sites-available/unencrypted-redirect.conf
         - require:
             - file: lax-nginx-conf
-        - watch:
-            - service: nginx-server-service
 
 {% endif %}
 
