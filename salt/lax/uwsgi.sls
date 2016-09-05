@@ -7,6 +7,16 @@ lax-nginx-conf:
             - pkg: nginx-server
 {% if salt['elife.cfg']('cfn.outputs.DomainName') %}
             - cmd: web-ssl-enabled
+
+lax-unencrypted-redirect:
+    file.symlink:
+        - name: /etc/nginx/sites-available/unencrypted-redirect.conf
+        - target: /etc/nginx/sites-enabled/unencrypted-redirect.conf
+        - require:
+            - file: lax-nginx-conf
+        - watch:
+            - service: nginx-server-service
+
 {% endif %}
 
 lax-uwsgi-conf:
