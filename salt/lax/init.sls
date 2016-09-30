@@ -57,6 +57,11 @@ lax-syslog-conf:
         - watch_in:
             - service: syslog-ng
 
+logrotate-for-lax-logs:
+    file.managed:
+        - name: /etc/logrotate.d/lax
+        - source: salt://lax/config/etc-logrotate.d-lax
+
 #
 # db
 #
