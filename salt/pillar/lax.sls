@@ -8,8 +8,12 @@ lax:
         password: barpass
         host: 127.0.0.1
         port: 5432
-
-    sns:
-        name: bus-articles
+    aws:
+        access_key_id: null
+        secret_access_key: null
         region: us-east-1
         subscriber: null
+    sns:
+        name: bus-articles
+        subscriber: null # TODO: remove in favor of pillar.lax.aws
+        region: us-east-1 # TODO: remove in favor of pillar.lax.aws
