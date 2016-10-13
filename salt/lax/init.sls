@@ -126,6 +126,7 @@ configure-lax:
 aws-credentials:
     file.managed:
         - user: /home/{{ pillar.elife.deploy_user.username }}/.aws/credentials
+        - makedirs: True
         - source: lax/config/home-deploy-user-.aws-credentials
         - template: jinja
         - require:
