@@ -25,28 +25,12 @@ lax-uwsgi-conf:
         - require:
             - install-lax
 
-# for the transition: cleans up the unkillable daemon-based Lax
-uwsgi-lax-kill-old-daemon-job:
-    cmd.run:
-        - name: |
-            killall -9 daemon
-            killall -9 uwsgi
-        - require:
-            - install-lax
-
-    file.absent:
-        - name: /etc/init.d/uwsgi-lax
-        - require:
-            - cmd: uwsgi-lax-kill-old-daemon-job
-
 uwsgi-lax:
     file.managed:
         - name: /etc/init/uwsgi-lax.conf
         - source: salt://lax/config/etc-init-uwsgi-lax.conf
         - template: jinja
         - mode: 755
-        - require: 
-            - uwsgi-lax-kill-old-daemon-job
 
     service.running:
         - enable: True
