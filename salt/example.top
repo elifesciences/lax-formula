@@ -10,3 +10,5 @@ base:
         # LSH 2016-06-22: disabled until elife-reporting fully resolved
         #- elife-reporting
         - lax.adaptors
+        # disabled on local VMs
+        #- lax.processes

@@ -123,3 +123,12 @@ configure-lax:
             - file: lax-ingest-log-file
             - postgres_database: lax-db-exists
 
+aws-credentials:
+    file.managed:
+        - name: /home/{{ pillar.elife.deploy_user.username }}/.aws/credentials
+        - user: {{ pillar.elife.deploy_user.username }}
+        - makedirs: True
+        - source: salt://lax/config/home-deploy-user-.aws-credentials
+        - template: jinja
+        - require:
+            - install-lax
