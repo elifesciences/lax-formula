@@ -27,8 +27,9 @@ lax-uwsgi-conf:
 
 uwsgi-lax:
     file.managed:
-        - name: /etc/init.d/uwsgi-lax
-        - source: salt://lax/config/etc-init.d-uwsgi-lax
+        - name: /etc/init/uwsgi-lax.conf
+        - source: salt://lax/config/etc-init-uwsgi-lax.conf
+        - template: jinja
         - mode: 755
 
     service.running:

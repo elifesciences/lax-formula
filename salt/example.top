@@ -5,6 +5,7 @@ base:
         - elife.uwsgi
         - elife.postgresql
         - elife.mercurial
+        - elife.no-more-daemon
         - lax
         - lax.uwsgi
         # LSH 2016-06-22: disabled until elife-reporting fully resolved
