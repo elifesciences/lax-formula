@@ -8,3 +8,7 @@ lax:
         password: barpass
         host: 127.0.0.1
         port: 5432
+    sns:
+        name: bus-articles
+        subscriber: 1234567890
+        region: us-east-1
