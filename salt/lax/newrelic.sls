@@ -10,7 +10,7 @@ newrelic-ini-configuration-appname:
     file.replace:
         - name: /srv/lax/newrelic.ini
         - pattern: '^app_?name.*'
-        - repl: app_name = "{{ salt['elife.cfg']('project.stackname', 'cfn.stack_id', 'Python application') }}"
+        - repl: app_name = {{ salt['elife.cfg']('project.stackname', 'cfn.stack_id', 'Python application') }}
         - require:
             - newrelic-license-configuration
         - listen_in:
