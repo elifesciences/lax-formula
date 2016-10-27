@@ -115,13 +115,17 @@ configure-lax:
     cmd.run:
         - user: {{ pillar.elife.deploy_user.username }}
         - cwd: /srv/lax/
-        - name: ./install.sh && ./manage.sh collectstatic --noinput
+        - name: |
+            ./install.sh 
+            ./download-api-raml.sh
+            ./manage.sh collectstatic --noinput
         - require:
             - install-lax
             - file: cfg-file
             - file: lax-log-file
             - file: lax-ingest-log-file
             - postgres_database: lax-db-exists
+
 
 aws-credentials:
     file.managed:
