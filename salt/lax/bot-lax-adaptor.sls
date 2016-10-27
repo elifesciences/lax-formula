@@ -28,6 +28,7 @@ bot-lax-adaptor:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
         - name: ./install.sh
+        - user: {{ pillar.elife.deploy_user.username }}
         - require:
             - git: bot-lax-adaptor
             - pkg: bot-lax-adaptor
