@@ -8,14 +8,13 @@ lax-nginx-conf:
 {% if salt['elife.cfg']('cfn.outputs.DomainName') %}
             - cmd: web-ssl-enabled
 
-lax-unencrypted-redirect:
-    file.symlink:
-        - name: /etc/nginx/sites-enabled/unencrypted-redirect.conf
-        - target: /etc/nginx/sites-available/unencrypted-redirect.conf
-        - require:
-            - file: lax-nginx-conf
-
 {% endif %}
+
+# we used to redirect all traffic to https but don't anymore
+# now we simply block all external traffic on port 80
+lax-unencrypted-redirect:
+    file.absent:
+        - name: /etc/nginx/sites-enabled/unencrypted-redirect.conf
 
 lax-uwsgi-conf:
     file.managed:
