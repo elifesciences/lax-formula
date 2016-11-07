@@ -8,6 +8,7 @@ base:
         - elife.no-more-daemon
         - lax
         - lax.uwsgi
+        - lax.query-upload
         # LSH 2016-06-22: disabled until elife-reporting fully resolved
         #- elife-reporting
         - lax.adaptors
