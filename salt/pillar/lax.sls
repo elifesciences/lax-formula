@@ -3,6 +3,7 @@ lax:
         # http://techblog.leosoto.com/django-secretkey-generation/
         secret: dummy-secret-do-not-use-in-prod
         allow_invalid_ajson: False
+        reporting_bucket: null
     db:
         name: lax
         username: foouser # case sensitive. use all lowercase
