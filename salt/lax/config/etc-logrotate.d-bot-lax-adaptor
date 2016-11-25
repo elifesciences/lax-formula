@@ -1,0 +1,7 @@
+/opt/bot-lax-adaptor*.log {
+    daily
+    rotate 7
+    notifempty
+    missingok
+    compress
+}

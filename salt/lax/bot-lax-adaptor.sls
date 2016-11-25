@@ -40,4 +40,23 @@ bot-lax-adaptor-service:
         - template: jinja
         - require:
             - bot-lax-adaptor
+            
+    #service.running # see `processes.sls` for how it is run and `/var/log/upstart/bot-lax-adaptor-{proc}.log` for errors
 
+
+#
+# logging
+#
+
+bot-lax-adaptor-log-file-monitoring:
+    file.managed:
+        - name: /etc/syslog-ng/conf.d/bot-lax-adaptor.conf
+        - source: salt://lax/config/etc-syslog-ng-conf.d-bot-lax-adaptor.conf
+        - template: jinja
+        - require: 
+            - bot-lax-adaptor-service
+
+logrotate-for-bot-lax-adaptor-logs:
+    file.managed:
+        - name: /etc/logrotate.d/bot-lax-adaptor
+        - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
