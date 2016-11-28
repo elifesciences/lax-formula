@@ -18,6 +18,7 @@ bot-lax-adaptor:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: https://github.com/elifesciences/bot-lax-adaptor
         - rev: master
+        - branch: master
         - target: /opt/bot-lax-adaptor/
         - force_fetch: True
         - force_checkout: True
