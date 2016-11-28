@@ -15,3 +15,11 @@ bot-lax-adaptors-start:
         - name: start bot-lax-adaptors
         - require:
             - bot-lax-adaptors-task
+
+bot-lax-adaptors-monitor:
+    cron.present:
+        - identifier: upstart-monitoring-bot-lax-adaptor
+        - name: /usr/local/bin/upstart-monitoring "bot-lax-adaptor (1)"
+        - minute: '*/5'
+        - require:
+            - bot-lax-adaptors-start
