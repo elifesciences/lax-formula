@@ -28,11 +28,20 @@ bot-lax-adaptor:
 
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
+        - name: ./pin.sh /srv/lax/bot-lax-adaptor.sha1
+        - user: {{ pillar.elife.deploy_user.username }}
+        - require:
+            - pkg: bot-lax-adaptor
+            - file: bot-lax-adaptor
+            - git: bot-lax-adaptor
+
+bot-lax-adaptor-install:
+    cmd.run:
+        - cwd: /opt/bot-lax-adaptor
         - name: ./install.sh
         - user: {{ pillar.elife.deploy_user.username }}
         - require:
-            - git: bot-lax-adaptor
-            - pkg: bot-lax-adaptor
+            - bot-lax-adaptor
 
 bot-lax-adaptor-service:
     file.managed:
@@ -40,7 +49,7 @@ bot-lax-adaptor-service:
         - source: salt://lax/config/etc-init-bot-lax-adaptor.conf
         - template: jinja
         - require:
-            - bot-lax-adaptor
+            - bot-lax-adaptor-install
             
     #service.running # see `processes.sls` for how it is run and `/var/log/upstart/bot-lax-adaptor-{proc}.log` for errors
 
