@@ -90,20 +90,15 @@ lax-db-exists:
         {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}    
         # remote psql
         - name: {{ salt['elife.cfg']('project.rds_dbname') }}
-        - owner: {{ pillar.lax.db.username }}
-        - db_user: {{ salt['elife.cfg']('project.rds_username') }}
-        - db_password: {{ salt['elife.cfg']('project.rds_password') }}
         - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
         - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
-
         {% else %}
         # local psql
         - name: {{ pillar.lax.db.name }}
-        - owner: {{ pillar.lax.db.username }}
-        - db_user: {{ pillar.elife.db_root.username }}
-        - db_password: {{ pillar.elife.db_root.password }}
         {% endif %}
-
+        - owner: {{ pillar.lax.db.username }}
+        - db_user: {{ pillar.lax.db.username }}
+        - db_password: {{ pillar.lax.db.password }}
         - require:
             - postgres_user: lax-db-user
 
@@ -136,3 +131,21 @@ aws-credentials:
         - template: jinja
         - require:
             - install-lax
+
+reset-script:
+    file.managed:
+        - name: /usr/local/bin/reset_script
+        - source: salt://lax/config/usr-local-bin-reset_script
+        - mode: 554
+
+{% if pillar.elife.env == 'end2end': %}
+reset-script-cron:
+    cron.present:
+        - name: /usr/local/bin/reset_script
+        - identifier: daily-reset
+        - user: root
+        - hour: 5
+        - minute: 0
+        - require:
+            - reset-script
+{% endif %}
