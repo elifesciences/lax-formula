@@ -143,7 +143,6 @@ reset-script-cron:
     cron.present:
         - name: /usr/local/bin/reset_script
         - identifier: daily-reset
-        - user: root
         - hour: 5
         - minute: 0
         - require:
