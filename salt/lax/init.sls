@@ -136,7 +136,7 @@ reset-script:
     file.managed:
         - name: /usr/local/bin/reset_script
         - source: salt://lax/config/usr-local-bin-reset_script
-        - mode: 554
+        - mode: 555
 
 {% if pillar.elife.env == 'end2end': %}
 reset-script-cron:
