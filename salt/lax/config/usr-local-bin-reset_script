@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "Deleting data from tables"
+cd /srv/lax
+venv/bin/python src/manage.py flush
