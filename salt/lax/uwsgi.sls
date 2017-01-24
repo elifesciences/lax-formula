@@ -7,7 +7,6 @@ lax-nginx-conf:
             - pkg: nginx-server
 {% if salt['elife.cfg']('cfn.outputs.DomainName') %}
             - cmd: web-ssl-enabled
-
 {% endif %}
 
 # we used to redirect all traffic to https but don't anymore
@@ -33,6 +32,7 @@ uwsgi-lax:
 
     service.running:
         - enable: True
+        - reload: True
         - require:
             - file: uwsgi-params
             - pip: uwsgi-pkg
