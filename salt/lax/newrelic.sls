@@ -16,13 +16,22 @@ newrelic-ini-configuration-appname:
         - listen_in:
             - service: uwsgi-lax
 
-newrelic-ini-configuration-logfile:
+newrelic-logfile-agent:
+    file.managed:
+        - name: /tmp/newrelic-python-agent.log
+        - user: {{ pillar.elife.deploy_user.username }}
+        - group: {{ pillar.elife.webserver.username }}
+        - require:
+            - newrelic-license-configuration
+
+newrelic-logfile-agent-in-ini-configuration:
     file.replace:
         - name: /srv/lax/newrelic.ini
         - pattern: '^#?log_file.*'
         - repl: log_file = /tmp/newrelic-python-agent.log
         - require:
             - newrelic-license-configuration
+            - newrelic-logfile-agent
         - listen_in:
             - service: uwsgi-lax
 
