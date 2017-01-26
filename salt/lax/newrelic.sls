@@ -19,6 +19,7 @@ newrelic-ini-configuration-appname:
 # deprecated, remove when the file has been removed
 newrelic-logfile-agent:
     file.absent:
+        - name: /tmp/newrelic-python-agent.log
         - require:
             - newrelic-license-configuration
 
