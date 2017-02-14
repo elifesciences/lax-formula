@@ -1,20 +1,23 @@
 install-lax:
-    file.directory:
-        - name: /srv/lax
-        - user: {{ pillar.elife.deploy_user.username }}
-        - group: {{ pillar.elife.deploy_user.username }}
-
     builder.git_latest:
-        - user: {{ pillar.elife.deploy_user.username }}
-        - name: https://github.com/elifesciences/lax
-        - rev: {{ salt['elife.cfg']('project.revision', 'project.branch', 'master') }}
+        - name: git@github.com:elifesciences/lax.git
+        - identity: {{ pillar.elife.projects_builder.key or '' }}
+        - rev: {{ salt['elife.rev']() }}
         - branch: {{ salt['elife.branch']() }}
         - target: /srv/lax/
         - force_fetch: True
         - force_checkout: True
         - force_reset: True
+
+    file.directory:
+        - name: /srv/lax
+        - user: {{ pillar.elife.deploy_user.username }}
+        - group: {{ pillar.elife.deploy_user.username }}
+        - recurse:
+            - user
+            - group
         - require:
-            - file: install-lax
+            - builder: install-lax
 
 cfg-file:
     file.managed:
