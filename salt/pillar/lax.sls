@@ -27,5 +27,3 @@ elife:
         resolver:
             impl: loris.resolver.SimpleHTTPResolver
             source_prefix: https://publishing-cdn.elifesciences.org/
-        smoke:
-            - /
