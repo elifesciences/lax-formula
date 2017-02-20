@@ -7,6 +7,7 @@ base:
         - elife.postgresql
         - elife.mercurial
         - elife.no-more-daemon
+        - elife.loris
         - lax
         - lax.uwsgi
         - lax.query-upload
