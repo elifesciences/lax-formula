@@ -7,6 +7,7 @@ base:
         - elife.postgresql
         - elife.mercurial
         - elife.no-more-daemon
+        - elife.external-volume
         - elife.loris
         - lax
         - lax.uwsgi

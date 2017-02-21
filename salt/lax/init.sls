@@ -151,3 +151,11 @@ reset-script-cron:
         - require:
             - reset-script
 {% endif %}
+
+external-volume-for-loris:
+    cmd.run:
+        - name: echo "External volume is ready for Loris"
+        - require:
+            - mount-external-volume
+        - require_in:
+            - loris-repository
