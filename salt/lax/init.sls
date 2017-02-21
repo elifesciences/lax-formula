@@ -158,4 +158,4 @@ external-volume-for-loris:
         - require:
             - mount-external-volume
         - require_in:
-            - loris-repository
+            - git: loris-repository
