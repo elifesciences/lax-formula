@@ -151,14 +151,3 @@ reset-script-cron:
         - require:
             - reset-script
 {% endif %}
-
-# experimental, do not dirty the other environments with it
-{% if pillar.elife.env == 'ci': %}
-external-volume-for-loris:
-    cmd.run:
-        - name: echo "External volume is ready for Loris"
-        - require:
-            - mount-external-volume
-        - require_in:
-            - git: loris-repository
-{% endif %}

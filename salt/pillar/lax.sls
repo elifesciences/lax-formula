@@ -20,10 +20,3 @@ lax:
         subscriber: null # TODO: remove in favor of pillar.lax.aws
         region: us-east-1 # TODO: remove in favor of pillar.lax.aws
 
-elife:
-    loris:
-        storage: /ext/loris
-        port: 8010
-        resolver:
-            impl: loris.resolver.SimpleHTTPResolver
-            source_prefix: https://publishing-cdn.elifesciences.org/

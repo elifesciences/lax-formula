@@ -8,7 +8,6 @@ base:
         - elife.mercurial
         - elife.no-more-daemon
         - elife.external-volume
-        - elife.loris
         - lax
         - lax.uwsgi
         - lax.query-upload
