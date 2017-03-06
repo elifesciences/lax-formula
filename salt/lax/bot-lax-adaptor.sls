@@ -39,7 +39,7 @@ bot-lax-adaptor-config:
     file.managed:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: /opt/bot-lax-adaptor/app.cfg
-        - src: salt://lax/config/opt-bot-lax-adaptor-app.cfg
+        - source: salt://lax/config/opt-bot-lax-adaptor-app.cfg
         - template: jinja
         - require:
             - bot-lax-adaptor
