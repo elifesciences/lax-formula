@@ -35,6 +35,15 @@ bot-lax-adaptor:
             - file: bot-lax-adaptor
             - git: bot-lax-adaptor
 
+bot-lax-adaptor-config:
+    file.managed:
+        - user: {{ pillar.elife.deploy_user.username }}
+        - name: /opt/bot-lax-adaptor/app.cfg
+        - src: salt://lax/config/opt-bot-lax-adaptor-app.cfg
+        - template: jinja
+        - require:
+            - bot-lax-adaptor
+
 bot-lax-adaptor-install:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
@@ -42,6 +51,7 @@ bot-lax-adaptor-install:
         - user: {{ pillar.elife.deploy_user.username }}
         - require:
             - bot-lax-adaptor
+            - bot-lax-adaptor-config
 
 bot-lax-adaptor-service:
     file.managed:
