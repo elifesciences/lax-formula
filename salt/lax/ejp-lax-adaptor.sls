@@ -29,7 +29,7 @@ daily-ejp-import:
         - mode: 740
 
     # don't scrape ejp data outside of prod/adhoc instances
-    {% if pillar.elife.env in ['dev', 'ci', 'end2end'] %}
+    {% if pillar.elife.env in ['dev', 'continuumtest', 'ci', 'end2end'] %}
     cron.absent:
     {% else %}
     cron.present:
