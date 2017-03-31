@@ -28,7 +28,12 @@ daily-ejp-import:
         - name: /var/log/lax-daily-ejp-import.log
         - mode: 740
 
+    # don't scrape ejp data outside of prod/adhoc instances
+    {% if pillar.elife.env in ['dev', 'ci', 'end2end'] %}
+    cron.absent:
+    {% else %}
     cron.present:
+    {% endif %}
         - user: {{ pillar.elife.deploy_user.username }}
         - identifier: daily-ejp-import
         - name: cd /opt/ejp-lax-adaptor/ && ./scrape-ejp-load-lax.sh
