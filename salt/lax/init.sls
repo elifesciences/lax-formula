@@ -105,6 +105,13 @@ lax-db-exists:
         - require:
             - postgres_user: lax-db-user
 
+lax-ubr-db-backup:
+    file.managed:
+        - name: /etc/ubr/lax-backup.yaml
+        - source: salt://lax/config/etc-ubr-lax-backup.yaml
+        - require:
+            - lax-db-exists
+
 #
 # 
 # 
