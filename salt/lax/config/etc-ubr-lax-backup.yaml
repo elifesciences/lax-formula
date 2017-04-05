@@ -1,2 +1,2 @@
 postgresql-database:
-    - lax
+    - {{ pillar.lax.db.name }}

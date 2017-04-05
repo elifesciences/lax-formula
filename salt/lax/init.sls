@@ -109,6 +109,7 @@ lax-ubr-db-backup:
     file.managed:
         - name: /etc/ubr/lax-backup.yaml
         - source: salt://lax/config/etc-ubr-lax-backup.yaml
+        - template: jinja
         - require:
             - lax-db-exists
 
