@@ -99,7 +99,7 @@ lax-db-exists:
         # local psql
         - name: {{ pillar.lax.db.name }}
         {% endif %}
-        - owner: {{ pillar.lax.db.username }}
+        #- owner: {{ pillar.lax.db.username }} # this could be what is killing it
         - db_user: {{ pillar.lax.db.username }}
         - db_password: {{ pillar.lax.db.password }}
         - require:
