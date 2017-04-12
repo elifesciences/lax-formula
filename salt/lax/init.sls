@@ -109,8 +109,8 @@ lax-db-perms-to-rds_superuser:
         - name: salt://elife/scripts/rds-perms.sh
         - template: jinja
         - defaults:
-            - user: {{ pillar.lax.db.username }}
-            - pass: {{ pillar.lax.db.password }}
+            user: {{ pillar.lax.db.username }}
+            pass: {{ pillar.lax.db.password }}
         - require:
             - lax-db-exists
 
