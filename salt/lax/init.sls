@@ -111,8 +111,10 @@ lax-db-exists:
 rds-master-user-can-read-lax-db:
     postgres_privileges.present:
         - name: {{ pillar.elife.db_root.username }}
-        - object_name: {{ salt['elife.cfg']('project.rds_dbname') or pillar.lax.db.name }}
-        - object_type: database
+        #- object_name: {{ salt['elife.cfg']('project.rds_dbname') or pillar.lax.db.name }}
+        #- object_type: database
+        - object_name: ALL
+        - object_type: table
         - privileges: 
             - ALL
         
