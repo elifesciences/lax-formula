@@ -105,6 +105,25 @@ lax-db-exists:
         - require:
             - postgres_user: lax-db-user
 
+{% if salt['elife.cfg']('cfn.outputs.RDSHost') %}    
+# give the master user with the 'rds_superuser' read access to db
+# https://docs.saltstack.com/en/latest/ref/states/all/salt.states.postgres_privileges.html#salt.states.postgres_privileges.present
+rds-master-user-can-read-lax-db:
+    postgres_database.postgres_privileges:
+        - name: {{ pillar.elife.db_root.username }}
+        - object_name: {{ salt['elife.cfg']('project.rds_dbname') or pillar.lax.db.name }}
+        - object_type: database
+        - privileges: ALL
+        
+        # we're granting the rds_superuser role permissions, has to be done as the lax user
+        - db_user: {{ pillar.lax.db.username }}
+        - db_password: {{ pillar.lax.db.password }}
+        
+        - require:
+            - lax-db-exists
+
+{% endif %}
+
 lax-ubr-db-backup:
     file.managed:
         - name: /etc/ubr/lax-backup.yaml
