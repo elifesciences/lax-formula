@@ -113,7 +113,8 @@ rds-master-user-can-read-lax-db:
         - name: {{ pillar.elife.db_root.username }}
         - object_name: {{ salt['elife.cfg']('project.rds_dbname') or pillar.lax.db.name }}
         - object_type: database
-        - privileges: ALL
+        - privileges: 
+            - ALL
         
         # we're granting the rds_superuser role permissions, has to be done as the lax user
         - db_user: {{ pillar.lax.db.username }}
