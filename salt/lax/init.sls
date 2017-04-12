@@ -99,53 +99,20 @@ lax-db-exists:
         # local psql
         - name: {{ pillar.lax.db.name }}
         {% endif %}
-        #- owner: {{ pillar.lax.db.username }} # this could be what is killing it
         - db_user: {{ pillar.lax.db.username }}
         - db_password: {{ pillar.lax.db.password }}
         - require:
             - postgres_user: lax-db-user
 
-{% if salt['elife.cfg']('cfn.outputs.RDSHost') %}    
-# give the master user with the 'rds_superuser' read access to db
-# https://docs.saltstack.com/en/latest/ref/states/all/salt.states.postgres_privileges.html#salt.states.postgres_privileges.present
-
-# GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO rds_superuser;
-rds-master-user-can-read-lax-db:
-    postgres_privileges.present:
-        - name: {{ pillar.elife.db_root.username }}
-        - object_name: ALL
-        - object_type: table
-        - privileges: 
-            - ALL
-        
-        # we're granting the rds_superuser role permissions, has to be done as the lax user
-        - db_user: {{ pillar.lax.db.username }}
-        - db_password: {{ pillar.lax.db.password }}
-        - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
-        - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
-        
+lax-db-perms-to-rds_superuser:
+    cmd.script:
+        - name: salt://elife/scripts/rds-perms.sh
+        - template: jinja
+        - defaults:
+            - user: {{ pillar.lax.db.username }}
+            - pass: {{ pillar.lax.db.password }}
         - require:
             - lax-db-exists
-
-# GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO rds_superuser;
-rds-superuser-can-do-sequences:
-    postgres_privileges.present:
-        - name: {{ pillar.elife.db_root.username }}
-        - object_name: ALL
-        - object_type: sequence
-        - privileges: 
-            - ALL
-        
-        # we're granting the rds_superuser role permissions, has to be done as the lax user
-        - db_user: {{ pillar.lax.db.username }}
-        - db_password: {{ pillar.lax.db.password }}
-        - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
-        - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
-        
-        - require:
-            - lax-db-exists
-
-{% endif %}
 
 lax-ubr-db-backup:
     file.managed:
