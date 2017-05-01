@@ -152,6 +152,15 @@ aws-credentials:
         - require:
             - install-lax
 
+aws-credentials-www-data-user:
+    file.managed:
+        - name: /var/www/.aws/credentials
+        - user: {{ pillar.elife.webserver.username }}
+        - makedirs: True
+        - source: salt://lax/config/home-deploy-user-.aws-credentials
+        - template: jinja
+
+
 reset-script:
     file.managed:
         - name: /usr/local/bin/reset_script
