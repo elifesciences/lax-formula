@@ -177,3 +177,14 @@ reset-script-cron:
         - require:
             - reset-script
 {% endif %}
+
+{% if pillar.elife.env == 'end2end' and  salt['elife.rev']() == 'approved' %}
+restore-backup-from-production:
+    cmd.script:
+        - name: restore-lax-script
+        - source: salt://lax/scripts/restore-lax.sh
+        - template: jinja
+        # as late as possible
+        - require:
+            - cmd: configure-lax
+{% endif %}
