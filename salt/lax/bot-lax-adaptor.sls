@@ -80,3 +80,62 @@ logrotate-for-bot-lax-adaptor-logs:
     file.managed:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
+
+{% for fname in ['test.log', 'scrape.log', 'validate.log'] %}
+{{ fname }}:
+    file.managed:
+        - name: /opt/bot-lax-adaptor/{{ fname }}
+        - user: {{ pillar.elife.deploy_user.username }}
+        - group: {{ pillar.elife.webserver.username }}
+        # writeable by user+group, readable by all else
+        - mode: 664
+        - require_in:
+            - bot-lax-log-files
+{% endfor %}
+
+bot-lax-log-files:
+    cmd.run:
+        - name: echo "logs done"
+
+
+#
+# bot-lax web api
+# 
+
+bot-lax-nginx-conf:
+    file.managed:
+        - name: /etc/nginx/sites-enabled/bot-lax.conf
+        - template: jinja
+        - source: salt://lax/config/etc-nginx-sitesenabled-bot-lax.conf
+        - require:
+            - pkg: nginx-server
+            - web-ssl-enabled
+
+bot-lax-uwsgi-conf:
+    file.managed:
+        - name: /opt/bot-lax-adaptor/uwsgi.ini
+        - source: salt://lax/config/opt-bot-lax-adaptor-uwsgi.ini
+        - template: jinja
+        - require:
+            - bot-lax-adaptor-install
+
+uwsgi-bot-lax-adaptor:
+    file.managed:
+        - name: /etc/init/uwsgi-bot-lax-adaptor.conf
+        - source: salt://lax/config/etc-init-uwsgi-bot-lax-adaptor.conf
+        - template: jinja
+        - mode: 755
+
+    service.running:
+        - enable: True
+        - reload: True
+        - require:
+            - file: uwsgi-params
+            - file: uwsgi-bot-lax-adaptor
+            - file: bot-lax-uwsgi-conf
+            - file: bot-lax-nginx-conf
+            - bot-lax-log-files
+        - watch:
+            - bot-lax-adaptor
+            # restart uwsgi if nginx service changes
+            - service: nginx-server-service
