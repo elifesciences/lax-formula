@@ -104,9 +104,9 @@ bot-lax-log-files:
 
 bot-lax-nginx-conf:
     file.managed:
-        - name: /etc/nginx/sites-enabled/bot-lax.conf
+        - name: /etc/nginx/sites-enabled/bot-lax-adaptor.conf
         - template: jinja
-        - source: salt://lax/config/etc-nginx-sitesenabled-bot-lax.conf
+        - source: salt://lax/config/etc-nginx-sitesenabled-bot-lax-adaptor.conf
         - require:
             - pkg: nginx-server
             - web-ssl-enabled
