@@ -81,21 +81,17 @@ logrotate-for-bot-lax-adaptor-logs:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
 
-{% for fname in ['test.log', 'scrape.log', 'validate.log'] %}
-{{ fname }}:
-    file.managed:
-        - name: /opt/bot-lax-adaptor/{{ fname }}
+bot-lax-log-dir:
+    file.directory:
+        - name: /var/log/bot-lax-adaptor/
         - user: {{ pillar.elife.deploy_user.username }}
         - group: {{ pillar.elife.webserver.username }}
         # writeable by user+group, readable by all else
         - mode: 664
-        - require_in:
-            - bot-lax-log-files
-{% endfor %}
-
-bot-lax-log-files:
-    cmd.run:
-        - name: echo "logs done"
+        - recurse:
+            - user
+            - group
+            - mode
 
 
 #
@@ -118,6 +114,7 @@ bot-lax-uwsgi-conf:
         - template: jinja
         - require:
             - bot-lax-adaptor-install
+            - bot-lax-log-dir
 
 uwsgi-bot-lax-adaptor:
     file.managed:
@@ -134,7 +131,7 @@ uwsgi-bot-lax-adaptor:
             - file: uwsgi-bot-lax-adaptor
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
-            - bot-lax-log-files
+            - bot-lax-log-dir
         - watch:
             - bot-lax-adaptor
             # restart uwsgi if nginx service changes
