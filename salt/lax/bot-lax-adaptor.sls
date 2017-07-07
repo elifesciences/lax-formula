@@ -83,18 +83,33 @@ logrotate-for-bot-lax-adaptor-logs:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
 
-{% for path in ['/tmp/uploads/', '/var/log/bot-lax-adaptor/', '/var/cache/bot-lax-adaptor/', '/var/cache/bot-lax-adaptor/uploads'] %}
-{{ path }}:
+# temporary. remove once feat-VALIDATE is fully deployed
+move-requests-cache-file:
+    cmd.run:
+        - name: |
+            set -e
+            mkdir -p /ext/cache
+            if [ -e /ext/requests-cache.sqlite3 ]; then
+                mv /ext/requests-cache.sqlite3 /ext/cache/requests-cache.sqlite3
+            else
+                echo "no request-cache file to move :)"
+            fi
+
+{% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
+dir-{{ path }}:
     file.directory:
         - name: {{ path }}
         - user: {{ pillar.elife.deploy_user.username }}
         - group: {{ pillar.elife.webserver.username }}
         # writeable by user+group, readable by all else
-        - mode: 774
+        - dir_mode: 774
+        - file_mode: 664 # read+write for user and group, read for world
         - recurse:
             - user
             - group
             - mode
+        - require:
+            - move-requests-cache-file
         - require_in:
             - bot-lax-writable-dirs
 {% endfor %}
