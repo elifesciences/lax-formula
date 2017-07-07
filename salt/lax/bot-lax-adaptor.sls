@@ -26,6 +26,8 @@ bot-lax-adaptor:
         - require:
             - file: bot-lax-adaptor
 
+    # alert! this will mess with the rev/branch specified in above git.latest
+    # to affect the git rev, ensure it's pinned in lax's bot-lax-adaptor.sha1
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
         - name: ./pin.sh /srv/lax/bot-lax-adaptor.sha1
@@ -81,18 +83,25 @@ logrotate-for-bot-lax-adaptor-logs:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
 
-bot-lax-log-dir:
+{% for path in ['/tmp/uploads/', '/var/log/bot-lax-adaptor/', '/var/cache/bot-lax-adaptor/', '/var/cache/bot-lax-adaptor/uploads'] %}
+{{ path }}:
     file.directory:
-        - name: /var/log/bot-lax-adaptor/
+        - name: {{ path }}
         - user: {{ pillar.elife.deploy_user.username }}
         - group: {{ pillar.elife.webserver.username }}
         # writeable by user+group, readable by all else
-        - mode: 664
+        - mode: 774
         - recurse:
             - user
             - group
             - mode
+        - require_in:
+            - bot-lax-writable-dirs
+{% endfor %}
 
+bot-lax-writable-dirs:
+    cmd.run:
+        - name: echo "dirs created"
 
 #
 # bot-lax web api
@@ -114,7 +123,7 @@ bot-lax-uwsgi-conf:
         - template: jinja
         - require:
             - bot-lax-adaptor-install
-            - bot-lax-log-dir
+            - bot-lax-writable-dirs
 
 uwsgi-bot-lax-adaptor:
     file.managed:
@@ -131,8 +140,14 @@ uwsgi-bot-lax-adaptor:
             - file: uwsgi-bot-lax-adaptor
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
-            - bot-lax-log-dir
+            - bot-lax-writable-dirs
         - watch:
             - bot-lax-adaptor
             # restart uwsgi if nginx service changes
             - service: nginx-server-service
+
+    # smoke test to ensure service is not serving up 500 responses
+    cmd.run:
+        - name: curl --silent --include --head --fail localhost:8001/ui/
+        - require:
+            - service: uwsgi-bot-lax-adaptor
