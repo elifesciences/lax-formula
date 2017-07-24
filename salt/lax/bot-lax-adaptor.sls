@@ -26,6 +26,8 @@ bot-lax-adaptor:
         - require:
             - file: bot-lax-adaptor
 
+    # alert! this will mess with the rev/branch specified in above git.latest
+    # to affect the git rev, ensure it's pinned in lax's bot-lax-adaptor.sha1
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
         - name: ./pin.sh /srv/lax/bot-lax-adaptor.sha1
@@ -80,3 +82,87 @@ logrotate-for-bot-lax-adaptor-logs:
     file.managed:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
+
+# temporary. remove once feat-VALIDATE is fully deployed
+move-requests-cache-file:
+    cmd.run:
+        - name: |
+            set -e
+            mkdir -p /ext/cache
+            if [ -e /ext/requests-cache.sqlite3 ]; then
+                mv /ext/requests-cache.sqlite3 /ext/cache/requests-cache.sqlite3
+            else
+                echo "no request-cache file to move :)"
+            fi
+
+{% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
+dir-{{ path }}:
+    file.directory:
+        - name: {{ path }}
+        - user: {{ pillar.elife.deploy_user.username }}
+        - group: {{ pillar.elife.webserver.username }}
+        # writeable by user+group, readable by all else
+        - dir_mode: 774
+        - file_mode: 664 # read+write for user and group, read for world
+        - recurse:
+            - user
+            - group
+            - mode
+        - require:
+            - move-requests-cache-file
+        - require_in:
+            - bot-lax-writable-dirs
+{% endfor %}
+
+bot-lax-writable-dirs:
+    cmd.run:
+        - name: echo "dirs created"
+
+#
+# bot-lax web api
+# 
+
+bot-lax-nginx-conf:
+    file.managed:
+        - name: /etc/nginx/sites-enabled/bot-lax-adaptor.conf
+        - template: jinja
+        - source: salt://lax/config/etc-nginx-sitesenabled-bot-lax-adaptor.conf
+        - require:
+            - pkg: nginx-server
+            - web-ssl-enabled
+
+bot-lax-uwsgi-conf:
+    file.managed:
+        - name: /opt/bot-lax-adaptor/uwsgi.ini
+        - source: salt://lax/config/opt-bot-lax-adaptor-uwsgi.ini
+        - template: jinja
+        - require:
+            - bot-lax-adaptor-install
+            - bot-lax-writable-dirs
+
+uwsgi-bot-lax-adaptor:
+    file.managed:
+        - name: /etc/init/uwsgi-bot-lax-adaptor.conf
+        - source: salt://lax/config/etc-init-uwsgi-bot-lax-adaptor.conf
+        - template: jinja
+        - mode: 755
+
+    service.running:
+        - enable: True
+        - reload: True
+        - require:
+            - file: uwsgi-params
+            - file: uwsgi-bot-lax-adaptor
+            - file: bot-lax-uwsgi-conf
+            - file: bot-lax-nginx-conf
+            - bot-lax-writable-dirs
+        - watch:
+            - bot-lax-adaptor
+            # restart uwsgi if nginx service changes
+            - service: nginx-server-service
+
+    # smoke test to ensure service is not serving up 500 responses
+    cmd.run:
+        - name: curl --silent --include --head --fail localhost:8001/ui/
+        - require:
+            - service: uwsgi-bot-lax-adaptor

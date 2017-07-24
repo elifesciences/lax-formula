@@ -5,9 +5,7 @@ lax-nginx-conf:
         - source: salt://lax/config/etc-nginx-sitesavailable-lax.conf
         - require:
             - pkg: nginx-server
-{% if salt['elife.cfg']('cfn.outputs.DomainName') %}
             - cmd: web-ssl-enabled
-{% endif %}
 
 # we used to redirect all traffic to https but don't anymore
 # now we simply block all external traffic on port 80
