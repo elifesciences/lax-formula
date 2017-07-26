@@ -163,6 +163,6 @@ uwsgi-bot-lax-adaptor:
 
     # smoke test to ensure service is not serving up 500 responses
     cmd.run:
-        - name: curl --silent --include --head --fail localhost:8001/ui/
+        - name: curl --silent --include --head --fail https://{{ salt['elife.cfg']('project.full_hostname') }}:8001/ui/
         - require:
             - service: uwsgi-bot-lax-adaptor
