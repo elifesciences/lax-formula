@@ -140,6 +140,9 @@ bot-lax-uwsgi-conf:
             - bot-lax-adaptor-install
             - bot-lax-writable-dirs
 
+{% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
+{% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
+
 uwsgi-bot-lax-adaptor:
     file.managed:
         - name: /etc/init/uwsgi-bot-lax-adaptor.conf
@@ -163,6 +166,6 @@ uwsgi-bot-lax-adaptor:
 
     # smoke test to ensure service is not serving up 500 responses
     cmd.run:
-        - name: curl --silent --include --head --fail {{ salt['elife.cfg']('project.full_hostname', 'localhost') }}:8001/ui/
+        - name: curl --silent --include --head --fail {{ apiprotocol }}://{{ apihost }}:8001/ui/
         - require:
             - service: uwsgi-bot-lax-adaptor
