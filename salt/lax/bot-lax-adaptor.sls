@@ -114,6 +114,14 @@ dir-{{ path }}:
             - bot-lax-writable-dirs
 {% endfor %}
 
+old-log-files:
+    cmd.run:
+        - name: rm -f *.log
+        - cwd: /opt/bot-lax-adaptor
+        - user: {{ pillar.elife.deploy_user.username }}
+        - require:
+            - bot-lax-adaptor 
+
 bot-lax-writable-dirs:
     cmd.run:
         - name: echo "dirs created"
