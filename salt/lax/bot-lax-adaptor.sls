@@ -168,13 +168,16 @@ uwsgi-bot-lax-adaptor:
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
-        - watch:
+        - onchanges:
             - bot-lax-adaptor
+        - watch:
             # restart uwsgi if nginx service changes
             - service: nginx-server-service
 
-    # smoke test to ensure service is not serving up 500 responses
+    # test to ensure service is not serving up 500 responses
+    # the 'listen' statement ensures it runs at the end of a state run
     cmd.run:
         - name: curl --silent --include --head --fail {{ apiprotocol }}://{{ apihost }}:8001/ui/
-        - require:
+        - listen:
             - service: uwsgi-bot-lax-adaptor
+
