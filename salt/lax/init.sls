@@ -78,7 +78,7 @@ lax-db-user:
 
         {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
         # remote psql
-        - db_user: {{ salt['elife.cfg']('project.rds_username') }}        
+        - db_user: {{ salt['elife.cfg']('project.rds_username') }}
         - db_password: {{ salt['elife.cfg']('project.rds_password') }}
         - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
         - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
@@ -93,16 +93,52 @@ lax-db-exists:
         {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}    
         # remote psql
         - name: {{ salt['elife.cfg']('project.rds_dbname') }}
+        - owner: {{ salt['elife.cfg']('project.rds_username') }}
+
+        # creation as root user is important
+        - db_user: {{ salt['elife.cfg']('project.rds_username') }}
+        - db_password: {{ salt['elife.cfg']('project.rds_password') }}
         - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
         - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
+
         {% else %}
         # local psql
-        - name: {{ pillar.lax.db.name }}
+        - name: {{ pillar.observer.db.name }}
+        - db_user: {{ pillar.elife.db_root.username }}
+        - db_password: {{ pillar.elife.db_root.password }}
+        - owner: {{ pillar.elife.db_root.username }}
         {% endif %}
-        - db_user: {{ pillar.lax.db.username }}
-        - db_password: {{ pillar.lax.db.password }}
+
         - require:
             - postgres_user: lax-db-user
+
+lax-db-user-permissions:
+    postgres_privileges.present:
+        - name: {{ pillar.lax.db.username }}
+        - object_type: database
+        - privileges: 
+            - ALL
+        - grant_option: False
+        
+        {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}    
+        # remote psql
+        - object_name: {{ salt['elife.cfg']('project.rds_dbname') }}
+        - db_user: {{ salt['elife.cfg']('project.rds_username') }}
+        - db_password: {{ salt['elife.cfg']('project.rds_password') }}
+        - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
+        - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
+        
+        {% else %}
+        # local psql
+        - object_name: {{ pillar.lax.db.name }}
+        - db_user: {{ pillar.elife.db_root.username }}
+        - db_password: {{ pillar.elife.db_root.password }}
+        {% endif %}
+
+        - require:
+            - postgres_user: lax-db-user
+            - postgres_database: lax-db-exists
+
 
 lax-db-perms-to-rds_superuser:
     cmd.script:
