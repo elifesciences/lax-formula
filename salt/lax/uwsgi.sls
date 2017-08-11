@@ -33,7 +33,6 @@ uwsgi-lax:
         - reload: True
         - require:
             - file: uwsgi-params
-            - pip: uwsgi-pkg
             - file: uwsgi-lax
             - file: lax-uwsgi-conf
             - file: lax-nginx-conf
