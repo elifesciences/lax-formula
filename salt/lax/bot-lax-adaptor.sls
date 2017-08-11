@@ -178,6 +178,8 @@ uwsgi-bot-lax-adaptor:
     # the 'listen' statement ensures it runs at the end of a state run
     cmd.run:
         - name: curl --silent --include --head --fail {{ apiprotocol }}://{{ apihost }}:8001/ui/
+        - require:
+            - service: uwsgi-bot-lax-adaptor
         - listen:
             - service: uwsgi-bot-lax-adaptor
 
