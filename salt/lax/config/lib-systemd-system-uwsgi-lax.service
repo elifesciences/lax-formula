@@ -1,0 +1,36 @@
+[Unit]
+Description="Lax uWSGI server"
+After=network.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+# something still wrong with this setup. getting:
+#
+# root@dev--lax:/home/elife# time systemctl stop uwsgi-lax
+#
+# real	1m16.155s
+# user	0m0.000s
+# sys	0m0.000s
+
+Restart=always
+KillSignal=SIGQUIT
+Environment="LANG=en_US.UTF-8"
+StandardError=syslog
+# don't do this:
+# https://serverfault.com/questions/840484/uwsgi-wont-start-with-systemd-under-ubuntu-16-04
+#Type=forking
+Type=notify
+NotifyAccess=main
+
+{% if pillar.elife.newrelic.enabled %}
+# '--enable-threads' is required:
+# https://docs.newrelic.com/docs/agents/python-agent/hosting-mechanisms/python-agent-uwsgi
+Environment="NEW_RELIC_CONFIG_FILE=/srv/lax/newrelic.ini"
+ExecStart=/srv/lax/venv/bin/newrelic-admin run-program /srv/lax/venv/bin/uwsgi --enable-threads --die-on-term --ini /srv/lax/uwsgi.ini
+{% else %}
+ExecStart=/srv/lax/venv/bin/uwsgi --die-on-term --ini /srv/lax/uwsgi.ini
+{% endif %}
+
+

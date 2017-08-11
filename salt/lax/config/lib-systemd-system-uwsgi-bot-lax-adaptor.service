@@ -1,0 +1,15 @@
+[Unit]
+Description="bot-lax uWSGI server"
+After=network.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Restart=always
+KillSignal=SIGQUIT
+Environment="LANG=en_US.UTF-8"
+StandardError=syslog
+Type=notify
+NotifyAccess=main
+ExecStart=/opt/bot-lax-adaptor/venv/bin/uwsgi --die-on-term --ini /opt/bot-lax-adaptor/uwsgi.ini

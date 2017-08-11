@@ -137,6 +137,7 @@ bot-lax-nginx-conf:
         - template: jinja
         - source: salt://lax/config/etc-nginx-sitesenabled-bot-lax-adaptor.conf
         - require:
+            - file: uwsgi-params
             - pkg: nginx-server
             - web-ssl-enabled
 
@@ -149,22 +150,30 @@ bot-lax-uwsgi-conf:
             - bot-lax-adaptor-install
             - bot-lax-writable-dirs
 
-{% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
-{% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
-
-uwsgi-bot-lax-adaptor:
+bot-lax-uwsgi-upstart:
     file.managed:
         - name: /etc/init/uwsgi-bot-lax-adaptor.conf
         - source: salt://lax/config/etc-init-uwsgi-bot-lax-adaptor.conf
         - template: jinja
         - mode: 755
 
+bot-lax-uwsgi-systemd:
+    file.managed:
+        - name: /lib/systemd/system/uwsgi-bot-lax-adaptor.service
+        - source: salt://lax/config/lib-systemd-system-uwsgi-bot-lax-adaptor.service
+        - template: jinja
+        - mode: 640
+
+{% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
+{% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
+
+uwsgi-bot-lax-adaptor:
     service.running:
         - enable: True
         - reload: True
         - require:
-            - file: uwsgi-params
-            - file: uwsgi-bot-lax-adaptor
+            - file: bot-lax-uwsgi-upstart
+            - file: bot-lax-uwsgi-systemd
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs

@@ -4,14 +4,9 @@ lax-nginx-conf:
         - template: jinja
         - source: salt://lax/config/etc-nginx-sitesavailable-lax.conf
         - require:
+            - file: uwsgi-params
             - pkg: nginx-server
             - cmd: web-ssl-enabled
-
-# we used to redirect all traffic to https but don't anymore
-# now we simply block all external traffic on port 80
-lax-unencrypted-redirect:
-    file.absent:
-        - name: /etc/nginx/sites-enabled/unencrypted-redirect.conf
 
 lax-uwsgi-conf:
     file.managed:
@@ -21,19 +16,27 @@ lax-uwsgi-conf:
         - require:
             - install-lax
 
-uwsgi-lax:
+lax-upstart-conf:
     file.managed:
         - name: /etc/init/uwsgi-lax.conf
         - source: salt://lax/config/etc-init-uwsgi-lax.conf
         - template: jinja
         - mode: 755
 
+lax-systemd-conf:
+    file.managed:
+        - name: /lib/systemd/system/uwsgi-lax.service
+        - source: salt://lax/config/lib-systemd-system-uwsgi-lax.service
+        - template: jinja
+        - mode: 640
+
+uwsgi-lax:
     service.running:
         - enable: True
         - reload: True
         - require:
-            - file: uwsgi-params
-            - file: uwsgi-lax
+            - file: lax-upstart-conf
+            - file: lax-systemd-conf
             - file: lax-uwsgi-conf
             - file: lax-nginx-conf
             - file: lax-log-file
