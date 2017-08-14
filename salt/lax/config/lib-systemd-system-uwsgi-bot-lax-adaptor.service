@@ -6,10 +6,7 @@ After=network.target
 WantedBy=multi-user.target
 
 [Service]
-Restart=always
-KillSignal=SIGQUIT
 Environment="LANG=en_US.UTF-8"
 StandardError=syslog
-Type=notify
-NotifyAccess=main
+Restart=on-failure
 ExecStart=/opt/bot-lax-adaptor/venv/bin/uwsgi --die-on-term --ini /opt/bot-lax-adaptor/uwsgi.ini

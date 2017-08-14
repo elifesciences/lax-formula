@@ -28,12 +28,12 @@ lax-systemd-conf:
         - name: /lib/systemd/system/uwsgi-lax.service
         - source: salt://lax/config/lib-systemd-system-uwsgi-lax.service
         - template: jinja
-        - mode: 640
+        - mode: 644
 
 uwsgi-lax:
     service.running:
         - enable: True
-        - reload: True
+        #- reload: True # uwsgi+systemd problems
         - require:
             - file: lax-upstart-conf
             - file: lax-systemd-conf

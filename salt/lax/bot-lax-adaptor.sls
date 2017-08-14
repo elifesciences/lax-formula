@@ -162,7 +162,7 @@ bot-lax-uwsgi-systemd:
         - name: /lib/systemd/system/uwsgi-bot-lax-adaptor.service
         - source: salt://lax/config/lib-systemd-system-uwsgi-bot-lax-adaptor.service
         - template: jinja
-        - mode: 640
+        - mode: 644
 
 {% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
@@ -170,7 +170,7 @@ bot-lax-uwsgi-systemd:
 uwsgi-bot-lax-adaptor:
     service.running:
         - enable: True
-        - reload: True
+        #- reload: True # uwsgi+systemd problems
         - require:
             - file: bot-lax-uwsgi-upstart
             - file: bot-lax-uwsgi-systemd
