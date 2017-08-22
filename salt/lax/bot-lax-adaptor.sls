@@ -55,15 +55,6 @@ bot-lax-adaptor-install:
             - bot-lax-adaptor
             - bot-lax-adaptor-config
 
-bot-lax-adaptor-service:
-    file.managed:
-        - name: /etc/init/bot-lax-adaptor.conf
-        - source: salt://lax/config/etc-init-bot-lax-adaptor.conf
-        - template: jinja
-        - require:
-            - bot-lax-adaptor-install
-            
-    #service.running # see `processes.sls` for how it is run and `/var/log/upstart/bot-lax-adaptor-{proc}.log` for errors
 
 
 #
@@ -75,8 +66,6 @@ bot-lax-adaptor-log-file-monitoring:
         - name: /etc/syslog-ng/conf.d/bot-lax-adaptor.conf
         - source: salt://lax/config/etc-syslog-ng-conf.d-bot-lax-adaptor.conf
         - template: jinja
-        - require: 
-            - bot-lax-adaptor-service
 
 logrotate-for-bot-lax-adaptor-logs:
     file.managed:
