@@ -11,7 +11,8 @@ StandardError=syslog
 Restart=on-failure
 User={{ pillar.elife.deploy_user.username }}
 WorkingDirectory=/opt/bot-lax-adaptor
-TimeoutStopSec=30 # blocking for 20 seconds on polling, plus a few seconds for a new ingest
+# blocking for 20 seconds on polling, plus a few seconds for a new ingest
+TimeoutStopSec=30
 
 # .bot-lax-listener.sh doesn't seem to use pillar.elife.env or the instance ID ...
 {% if pillar.elife.newrelic.enabled %}

@@ -17,6 +17,7 @@ bot-lax-adaptor-script:
         - name: /opt/bot-lax-adaptors.sh
         - source: salt://elife/templates/systemd-multiple-processes.sh
         - template: jinja
+        - mode: 740
         - context:
             process: bot-lax-adaptor
             number: {{ number }}
