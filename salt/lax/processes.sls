@@ -29,6 +29,7 @@ bot-lax-adaptors-task:
         - require:
             - bot-lax-adaptor-script
 
+bot-lax-adaptors-start:
     service.running:
         - name: bot-lax-adaptors
         - require:
