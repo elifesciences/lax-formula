@@ -4,6 +4,10 @@ lax:
         secret: dummy-secret-do-not-use-in-prod
         allow_invalid_ajson: False
         reporting_bucket: null
+        users:
+            api_gateway:
+                username: api-gateway
+                password: foo
     botlax:
         api_whitelist:
             - '127.0.0.1' # internal
