@@ -16,3 +16,5 @@ base:
         - lax.adaptors
         # disabled on local VMs
         #- lax.processes
+        # only on the first instance of a prod cluster
+        #- lax.cron
