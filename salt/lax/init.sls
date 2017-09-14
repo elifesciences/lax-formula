@@ -167,17 +167,6 @@ reset-script:
         - source: salt://lax/config/usr-local-bin-reset_script
         - mode: 555
 
-{% if pillar.elife.env == 'end2end': %}
-reset-script-cron:
-    cron.present:
-        - name: /usr/local/bin/reset_script
-        - identifier: daily-reset
-        - hour: 5
-        - minute: 0
-        - require:
-            - reset-script
-{% endif %}
-
 #{% if pillar.elife.env == 'end2end' and  salt['elife.rev']() == 'approved' %}
 #restore-backup-from-production:
 #    cmd.script:
