@@ -151,7 +151,10 @@ bot-lax-uwsgi-conf:
             - bot-lax-adaptor-install
             - bot-lax-writable-dirs
 
-{% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
+{% set domainname = salt['elife.cfg']('cfn.outputs.DomainName') %}
+{% set loadbalanced = salt['elife.cfg']('project.elb') %}
+
+{% set apiprotocol = 'https' if domainname and not loadbalanced else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
 
 uwsgi-bot-lax-adaptor:
