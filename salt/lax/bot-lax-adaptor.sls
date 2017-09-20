@@ -139,6 +139,8 @@ bot-lax-nginx-conf:
         - require:
             - pkg: nginx-server
             - web-ssl-enabled
+        - watch_in:
+            - service: nginx-server-service
 
 bot-lax-uwsgi-conf:
     file.managed:
