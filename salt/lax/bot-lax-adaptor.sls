@@ -111,7 +111,7 @@ dir-{{ path }}:
         - require:
             - move-requests-cache-file
         - require_in:
-            - bot-lax-writable-dirs
+            - cmd: bot-lax-writable-dirs
 {% endfor %}
 
 # added 2017-08-01 - temporary state, remove in due course
