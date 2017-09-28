@@ -112,6 +112,11 @@ dir-{{ path }}:
             - move-requests-cache-file
         - require_in:
             - cmd: bot-lax-writable-dirs
+
+    cmd.run:
+        - name: chmod -R g+s {{ path }}
+        - require:
+            - file: var-directory
 {% endfor %}
 
 # added 2017-08-01 - temporary state, remove in due course
