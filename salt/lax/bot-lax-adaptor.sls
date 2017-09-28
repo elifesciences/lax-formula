@@ -116,7 +116,7 @@ dir-{{ path }}:
     cmd.run:
         - name: chmod -R g+s {{ path }}
         - require:
-            - file: var-directory
+            - file: dir-{{ path }}
 {% endfor %}
 
 # added 2017-08-01 - temporary state, remove in due course
