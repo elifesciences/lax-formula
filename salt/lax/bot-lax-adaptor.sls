@@ -111,7 +111,12 @@ dir-{{ path }}:
         - require:
             - move-requests-cache-file
         - require_in:
-            - bot-lax-writable-dirs
+            - cmd: bot-lax-writable-dirs
+
+    cmd.run:
+        - name: chmod -R g+s {{ path }}
+        - require:
+            - file: dir-{{ path }}
 {% endfor %}
 
 # added 2017-08-01 - temporary state, remove in due course
@@ -139,6 +144,8 @@ bot-lax-nginx-conf:
         - require:
             - pkg: nginx-server
             - web-ssl-enabled
+        - watch_in:
+            - service: nginx-server-service
 
 bot-lax-uwsgi-conf:
     file.managed:
@@ -149,7 +156,10 @@ bot-lax-uwsgi-conf:
             - bot-lax-adaptor-install
             - bot-lax-writable-dirs
 
-{% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
+{% set domainname = salt['elife.cfg']('cfn.outputs.DomainName') %}
+{% set loadbalanced = salt['elife.cfg']('project.elb') %}
+
+{% set apiprotocol = 'https' if domainname and not loadbalanced else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
 
 uwsgi-bot-lax-adaptor:
