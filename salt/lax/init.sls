@@ -131,6 +131,9 @@ configure-lax:
         - user: {{ pillar.elife.deploy_user.username }}
         - cwd: /srv/lax/
         - name: |
+            {% if pillar.env in ['dev', 'ci'] %}
+            rm -rf venv
+            {% endif %}
             ./install.sh 
             ./download-api-raml.sh
             ./manage.sh collectstatic --noinput
