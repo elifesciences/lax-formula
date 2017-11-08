@@ -8,6 +8,7 @@ base:
         - elife.mercurial
         - elife.no-more-daemon
         - elife.external-volume
+        - elife.newrelic-python
         - lax
         - lax.uwsgi
         - lax.query-upload
