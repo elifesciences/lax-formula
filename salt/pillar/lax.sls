@@ -30,3 +30,11 @@ elife:
     db:
         app:
             name: lax
+
+    newrelic:
+        enabled: True
+
+    newrelic_python:
+        application_folder: /srv/lax
+        service: uwsgi-lax
+        dependency_state: configure-lax
