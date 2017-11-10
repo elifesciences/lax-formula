@@ -66,65 +66,14 @@ logrotate-for-lax-logs:
         - source: salt://lax/config/etc-logrotate.d-lax
 
 #
-# db
-#
-
-lax-db-user:
-    postgres_user.present:
-        - name: {{ pillar.lax.db.username }}
-        - encrypted: True
-        - password: {{ pillar.lax.db.password }}
-        - refresh_password: True
-
-        {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
-        # remote psql
-        - db_user: {{ salt['elife.cfg']('project.rds_username') }}        
-        - db_password: {{ salt['elife.cfg']('project.rds_password') }}
-        - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
-        - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
-        {% else %}
-        - db_user: {{ pillar.elife.db_root.username }}
-        - db_password: {{ pillar.elife.db_root.password }}
-        {% endif %}
-        - createdb: True
-
-lax-db-exists:
-    postgres_database.present:
-        {% if salt['elife.cfg']('cfn.outputs.RDSHost') %}    
-        # remote psql
-        - name: {{ salt['elife.cfg']('project.rds_dbname') }}
-        - db_host: {{ salt['elife.cfg']('cfn.outputs.RDSHost') }}
-        - db_port: {{ salt['elife.cfg']('cfn.outputs.RDSPort') }}
-        {% else %}
-        # local psql
-        - name: {{ pillar.lax.db.name }}
-        {% endif %}
-        - db_user: {{ pillar.lax.db.username }}
-        - db_password: {{ pillar.lax.db.password }}
-        - require:
-            - postgres_user: lax-db-user
-
-lax-db-perms-to-rds_superuser:
-    cmd.script:
-        - name: salt://elife/scripts/rds-perms.sh
-        - template: jinja
-        - defaults:
-            user: {{ pillar.lax.db.username }}
-            pass: {{ pillar.lax.db.password }}
-        - require:
-            - lax-db-exists
+# 
+# 
 
 lax-ubr-db-backup:
     file.managed:
         - name: /etc/ubr/lax-backup.yaml
         - source: salt://lax/config/etc-ubr-lax-backup.yaml
         - template: jinja
-        - require:
-            - lax-db-exists
-
-#
-# 
-# 
 
 configure-lax:
     cmd.run:
@@ -142,7 +91,6 @@ configure-lax:
             - file: cfg-file
             - file: lax-log-file
             - file: lax-ingest-log-file
-            - postgres_database: lax-db-exists
 
 
 aws-credentials:
