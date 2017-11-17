@@ -7,8 +7,27 @@ This repository should be structured as any Saltstack formula should, but it
 should also conform to the structure required by the [builder](https://github.com/elifesciences/builder) 
 project.
 
+This repository also contains a `Dockerfile` for local development.
+
 See the eLife [builder example project](https://github.com/elifesciences/builder-example-project)
 for a reference on how to integrate with the `builder` project.
+
+## Reference
+
+Run tests inside a local container with
+
+```
+git clone git@github.com/elifesciences/lax
+docker build -t lax_dev .
+docker run -it lax_dev ./project_tests.sh
+```
+
+Run a sample web server with
+```
+git clone git@github.com/elifesciences/lax
+docker build -t lax_dev .
+docker run -it -p 8000:8000 lax_dev bash ./manage.sh runserver 0.0.0.0:8000
+```
 
 ## Copyright & Licence
 
