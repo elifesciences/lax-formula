@@ -37,14 +37,6 @@ bot-lax-adaptor:
             - file: bot-lax-adaptor
             - git: bot-lax-adaptor
 
-# the stable version of bot-lax-adaptor pins a version of connextion
-# that has stopped working
-bot-lax-adaptor-patch-connexion:
-    cmd.run:
-        - name: sed -i -e 's/^.*connexion.git.*$/connexion==1.2/g' /opt/bot-lax-adaptor/requirements.txt
-        - require:
-            - bot-lax-adaptor
-
 bot-lax-adaptor-config:
     file.managed:
         - user: {{ pillar.elife.deploy_user.username }}
@@ -62,7 +54,6 @@ bot-lax-adaptor-install:
         - require:
             - bot-lax-adaptor
             - bot-lax-adaptor-config
-            - bot-lax-adaptor-patch-connexion
 
 bot-lax-adaptor-service:
     file.managed:
