@@ -171,18 +171,17 @@ uwsgi-bot-lax-adaptor:
 
     service.running:
         - enable: True
-        - reload: True
         - require:
             - file: uwsgi-params
             - file: uwsgi-bot-lax-adaptor
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
-        - onchanges:
-            - bot-lax-adaptor
-        - watch:
-            # restart uwsgi if nginx service changes
-            - service: nginx-server-service
+
+    cmd.run:
+        - name: restart uwsgi-bot-lax-adaptor
+        - require:
+            - service: uwsgi-bot-lax-adaptor
 
     # test to ensure service is not serving up 500 responses
     # the 'listen' statement ensures it runs at the end of a state run
