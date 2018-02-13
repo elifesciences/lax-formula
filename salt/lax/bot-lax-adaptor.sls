@@ -171,6 +171,8 @@ uwsgi-bot-lax-adaptor:
 
     service.running:
         - enable: True
+        # doesn't seem to be understood by uwsgi, so we restart manually with a cmd.run state
+        # - reload: True
         - require:
             - file: uwsgi-params
             - file: uwsgi-bot-lax-adaptor
@@ -179,6 +181,7 @@ uwsgi-bot-lax-adaptor:
             - bot-lax-writable-dirs
 
     cmd.run:
+        # we need to restart to load new Python code just deployed
         - name: restart uwsgi-bot-lax-adaptor
         - require:
             - service: uwsgi-bot-lax-adaptor
