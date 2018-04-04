@@ -3,6 +3,7 @@ lax:
         secret: dummy-secret-do-not-use-in-prod
         allow_invalid_ajson: False
         reporting_bucket: null
+        cache_headers_ttl: null
         users:
             api_gateway:
                 username: api-gateway
