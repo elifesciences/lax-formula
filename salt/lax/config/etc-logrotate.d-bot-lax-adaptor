@@ -1,4 +1,4 @@
-/opt/bot-lax-adaptor/*.log {
+/var/log/bot-lax-adaptor/*.log {
     daily
     rotate 7
     notifempty
