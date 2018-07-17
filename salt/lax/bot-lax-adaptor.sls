@@ -186,15 +186,12 @@ uwsgi-bot-lax-adaptor:
         - require:
             - service: uwsgi-bot-lax-adaptor
 
-    # test to ensure service is not serving up 500 responses
-    # the 'listen' statement ensures it runs at the end of a state run
-    # currently doesn't work: due to `listen` it runs 
-    # after the listener_nginx-server-service restart
-    # but it also runs immediately here, and since nginx is not restarted yet, it fails because no one is answering on port 8001 yet
-    #cmd.run:
-    #    - name: |
-    #        curl --silent --include --head --fail {{ apiprotocol }}://{{ apihost }}:8001/ui/
-    #    - listen:
-    #        - service: nginx
-    #        - service: uwsgi-bot-lax-adaptor
+uwsgi-bot-lax-smoke-test:
+    http.wait_for_successful_query:
+        - name: {{ apiprotocol }}://{{ apihost }}:8001/ui/
+        - status: 200
+        - wait_for: 10 # seconds. five checks with 1 second between each
+        - request_interval: 1 # second
+        - require:
+            - uwsgi-bot-lax-adaptor
 

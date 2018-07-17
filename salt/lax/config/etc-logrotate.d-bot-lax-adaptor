@@ -1,4 +1,6 @@
 /var/log/bot-lax-adaptor/*.log {
+    # user:group, same as directory permissions
+    su {{ pillar.elife.deploy_user.username }} {{ pillar.elife.webserver.username }}
     daily
     rotate 7
     notifempty
