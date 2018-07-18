@@ -173,6 +173,7 @@ uwsgi-bot-lax-adaptor:
         - enable: True
         # doesn't seem to be understood by uwsgi, so we restart manually with a cmd.run state
         # - reload: True
+        - init_delay: 3
         - require:
             - file: uwsgi-params
             - file: uwsgi-bot-lax-adaptor
