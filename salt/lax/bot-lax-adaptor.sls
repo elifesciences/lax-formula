@@ -144,8 +144,8 @@ bot-lax-nginx-conf:
         - require:
             - pkg: nginx-server
             - web-ssl-enabled
-        - watch_in:
-            - service: nginx-server-service
+        #- watch_in:
+        #    - service: nginx-server-service
 
 bot-lax-uwsgi-conf:
     file.managed:
@@ -182,7 +182,8 @@ uwsgi-bot-lax-adaptor:
 
     cmd.run:
         # we need to restart to load new Python code just deployed
-        - name: restart uwsgi-bot-lax-adaptor
+        #- name: restart uwsgi-bot-lax-adaptor
+        - name: restart nginx
         - require:
             - service: uwsgi-bot-lax-adaptor
 
