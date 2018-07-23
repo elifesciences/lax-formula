@@ -155,7 +155,7 @@ uwsgi-bot-lax-adaptor:
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
         - watch_in:
-            - git.latest
+            - bot-lax-adaptor
             - bot-lax-adaptor-install
 
     #cmd.run:
