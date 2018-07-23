@@ -37,7 +37,7 @@ bot-lax-adaptor:
             - file: bot-lax-adaptor
             - git: bot-lax-adaptor
 
-bot-lax-adaptor-config:
+bot-lax-adaptor-install:
     file.managed:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: /opt/bot-lax-adaptor/app.cfg
@@ -46,14 +46,12 @@ bot-lax-adaptor-config:
         - require:
             - bot-lax-adaptor
 
-bot-lax-adaptor-install:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
         - name: ./install.sh
         - user: {{ pillar.elife.deploy_user.username }}
         - require:
-            - bot-lax-adaptor
-            - bot-lax-adaptor-config
+            - file: bot-lax-adaptor-install
 
 bot-lax-adaptor-service:
     file.managed:
@@ -62,7 +60,7 @@ bot-lax-adaptor-service:
         - template: jinja
         - require:
             - bot-lax-adaptor-install
-            
+
     #service.running # see `processes.sls` for how it is run and `/var/log/upstart/bot-lax-adaptor-{proc}.log` for errors
 
 
@@ -83,18 +81,6 @@ logrotate-for-bot-lax-adaptor-logs:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
 
-# temporary. remove once feat-VALIDATE is fully deployed
-move-requests-cache-file:
-    cmd.run:
-        - name: |
-            set -e
-            mkdir -p /ext/cache
-            if [ -e /ext/requests-cache.sqlite3 ]; then
-                mv /ext/requests-cache.sqlite3 /ext/cache/requests-cache.sqlite3
-            else
-                echo "no request-cache file to move :)"
-            fi
-
 {% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
 dir-{{ path }}:
     file.directory:
@@ -108,8 +94,6 @@ dir-{{ path }}:
             - user
             - group
             - mode
-        - require:
-            - move-requests-cache-file
         - require_in:
             - cmd: bot-lax-writable-dirs
 
@@ -118,15 +102,6 @@ dir-{{ path }}:
         - require:
             - file: dir-{{ path }}
 {% endfor %}
-
-# added 2017-08-01 - temporary state, remove in due course
-old-log-files:
-    cmd.run:
-        - name: rm -f *.log
-        - cwd: /opt/bot-lax-adaptor
-        - user: {{ pillar.elife.deploy_user.username }}
-        - require:
-            - bot-lax-adaptor 
 
 bot-lax-writable-dirs:
     cmd.run:
@@ -144,8 +119,8 @@ bot-lax-nginx-conf:
         - require:
             - pkg: nginx-server
             - web-ssl-enabled
-        #- watch_in:
-        #    - service: nginx-server-service
+        - watch_in:
+            - service: nginx-server-service
 
 bot-lax-uwsgi-conf:
     file.managed:
@@ -179,13 +154,16 @@ uwsgi-bot-lax-adaptor:
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
+        - watch_in:
+            - git.latest
+            - bot-lax-adaptor-install
 
-    cmd.run:
-        # we need to restart to load new Python code just deployed
-        #- name: restart uwsgi-bot-lax-adaptor
-        - name: restart nginx
-        - require:
-            - service: uwsgi-bot-lax-adaptor
+    #cmd.run:
+    #    # we need to restart to load new Python code just deployed
+    #    #- name: restart uwsgi-bot-lax-adaptor
+    #    - name: restart nginx
+    #    - require:
+    #        - service: uwsgi-bot-lax-adaptor
 
 uwsgi-bot-lax-smoke-test:
     http.wait_for_successful_query:
