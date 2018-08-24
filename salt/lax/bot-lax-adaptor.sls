@@ -96,8 +96,6 @@ dir-{{ path }}:
             - user
             - group
             - mode
-        - require:
-            - move-requests-cache-file
         - require_in:
             - cmd: bot-lax-writable-dirs
 
@@ -110,6 +108,23 @@ dir-{{ path }}:
 bot-lax-writable-dirs:
     cmd.run:
         - name: echo "dirs created"
+
+#
+#
+#
+
+move /opt/bot-lax/article-xml/ to /ext/article-xml:
+    cmd.script:
+        - cwd: /ext
+        - source: salt://lax/scripts/mv-article-xml.sh
+        - onlyif:
+            - test -d /ext
+
+    file.managed:
+        - name: /ext/mv-article-xml.sh
+        - source: salt://lax/scripts/mv-article-xml.sh
+        - onlyif:
+            - test -d /ext
 
 #
 # bot-lax web api
