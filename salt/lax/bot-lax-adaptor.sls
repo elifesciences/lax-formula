@@ -83,18 +83,6 @@ logrotate-for-bot-lax-adaptor-logs:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
 
-# temporary. remove once feat-VALIDATE is fully deployed
-move-requests-cache-file:
-    cmd.run:
-        - name: |
-            set -e
-            mkdir -p /ext/cache
-            if [ -e /ext/requests-cache.sqlite3 ]; then
-                mv /ext/requests-cache.sqlite3 /ext/cache/requests-cache.sqlite3
-            else
-                echo "no request-cache file to move :)"
-            fi
-
 {% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
 dir-{{ path }}:
     file.directory:
@@ -108,8 +96,6 @@ dir-{{ path }}:
             - user
             - group
             - mode
-        - require:
-            - move-requests-cache-file
         - require_in:
             - cmd: bot-lax-writable-dirs
 
@@ -119,18 +105,22 @@ dir-{{ path }}:
             - file: dir-{{ path }}
 {% endfor %}
 
-# added 2017-08-01 - temporary state, remove in due course
-old-log-files:
-    cmd.run:
-        - name: rm -f *.log
-        - cwd: /opt/bot-lax-adaptor
-        - user: {{ pillar.elife.deploy_user.username }}
-        - require:
-            - bot-lax-adaptor 
-
 bot-lax-writable-dirs:
     cmd.run:
         - name: echo "dirs created"
+
+#
+#
+#
+
+move /opt/bot-lax/article-xml/ to /ext/article-xml:
+    cmd.script:
+        - cwd: /ext
+        - source: salt://lax/scripts/mv-article-xml.sh
+
+    file.managed:
+        - name: /ext/mv-article-xml.sh
+        - source: salt://lax/scripts/mv-article-xml.sh
 
 #
 # bot-lax web api
