@@ -3,3 +3,4 @@
 *.orig
 *.swp
 /salt/top.sls
+/lax/

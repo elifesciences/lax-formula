@@ -3,4 +3,5 @@
 base:
     '*':
         - elife
+        - bitbucket
         - lax

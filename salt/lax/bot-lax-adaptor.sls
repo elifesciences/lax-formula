@@ -72,18 +72,6 @@ logrotate-for-bot-lax-adaptor-logs:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
 
-# temporary. remove once feat-VALIDATE is fully deployed
-move-requests-cache-file:
-    cmd.run:
-        - name: |
-            set -e
-            mkdir -p /ext/cache
-            if [ -e /ext/requests-cache.sqlite3 ]; then
-                mv /ext/requests-cache.sqlite3 /ext/cache/requests-cache.sqlite3
-            else
-                echo "no request-cache file to move :)"
-            fi
-
 {% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
 dir-{{ path }}:
     file.directory:
@@ -97,24 +85,31 @@ dir-{{ path }}:
             - user
             - group
             - mode
-        - require:
-            - move-requests-cache-file
         - require_in:
-            - bot-lax-writable-dirs
-{% endfor %}
+            - cmd: bot-lax-writable-dirs
 
-# added 2017-08-01 - temporary state, remove in due course
-old-log-files:
     cmd.run:
-        - name: rm -f *.log
-        - cwd: /opt/bot-lax-adaptor
-        - user: {{ pillar.elife.deploy_user.username }}
+        - name: chmod -R g+s {{ path }}
         - require:
-            - bot-lax-adaptor 
+            - file: dir-{{ path }}
+{% endfor %}
 
 bot-lax-writable-dirs:
     cmd.run:
         - name: echo "dirs created"
+
+#
+#
+#
+
+move /opt/bot-lax/article-xml/ to /ext/article-xml:
+    cmd.script:
+        - cwd: /ext
+        - source: salt://lax/scripts/mv-article-xml.sh
+
+    file.managed:
+        - name: /ext/mv-article-xml.sh
+        - source: salt://lax/scripts/mv-article-xml.sh
 
 #
 # bot-lax web api
@@ -129,6 +124,8 @@ bot-lax-nginx-conf:
             - file: uwsgi-params
             - pkg: nginx-server
             - web-ssl-enabled
+        - watch_in:
+            - service: nginx-server-service
 
 bot-lax-uwsgi-conf:
     file.managed:
@@ -138,6 +135,12 @@ bot-lax-uwsgi-conf:
         - require:
             - bot-lax-adaptor-install
             - bot-lax-writable-dirs
+
+{% set domainname = salt['elife.cfg']('cfn.outputs.DomainName') %}
+{% set loadbalanced = salt['elife.cfg']('project.elb') %}
+
+{% set apiprotocol = 'https' if domainname and not loadbalanced else 'http' %}
+{% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
 
 bot-lax-uwsgi-upstart:
     file.managed:
@@ -159,25 +162,37 @@ bot-lax-uwsgi-systemd:
 uwsgi-bot-lax-adaptor:
     service.running:
         - enable: True
-        #- reload: True # uwsgi+systemd problems
+        # doesn't seem to be understood by uwsgi, so we restart manually with a cmd.run state
+        # - reload: True
         - require:
             - file: bot-lax-uwsgi-upstart
             - file: bot-lax-uwsgi-systemd
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
+
         - onchanges:
             - bot-lax-adaptor
         - watch:
             # restart uwsgi if nginx service changes
             - service: nginx-server-service
 
-    # test to ensure service is not serving up 500 responses
-    # the 'listen' statement ensures it runs at the end of a state run
-    cmd.run:
-        - name: curl --silent --include --head --fail {{ apiprotocol }}://{{ apihost }}:8001/ui/
-        - require:
-            - service: uwsgi-bot-lax-adaptor
-        - listen:
-            - service: uwsgi-bot-lax-adaptor
+    # disabled 2018-09-097 in preference for 'onchanges' and 'watch' above
+    #cmd.run:
+    #    # we need to restart to load new Python code just deployed
+    #    - name: restart uwsgi-bot-lax-adaptor
+    #    - require:
+    #        - service: uwsgi-bot-lax-adaptor
+
+# disabled. because of `listen` requisites in builder-base.nginx, I can't get this
+# state to reliably run after the service is running without the service then
+# being restarted 
+#uwsgi-bot-lax-smoke-test:
+#    http.wait_for_successful_query:
+#        - name: {{ apiprotocol }}://{{ apihost }}:8001/ui/
+#        - status: 200
+#        - wait_for: 10 # seconds. five checks with 1 second between each
+#        - request_interval: 1 # second
+#        - require:
+#            - uwsgi-bot-lax-adaptor
 

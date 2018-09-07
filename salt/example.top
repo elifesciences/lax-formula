@@ -5,9 +5,11 @@ base:
         - elife.nginx
         - elife.uwsgi
         - elife.postgresql
+        - elife.postgresql-appdb
         - elife.mercurial
         - elife.no-more-daemon
         - elife.external-volume
+        - elife.newrelic-python
         - lax
         - lax.uwsgi
         - lax.query-upload
@@ -16,3 +18,5 @@ base:
         - lax.adaptors
         # disabled on local VMs
         #- lax.processes
+        # only on the first instance of a prod cluster
+        #- lax.cron
