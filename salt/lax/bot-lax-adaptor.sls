@@ -55,15 +55,6 @@ bot-lax-adaptor-install:
             - bot-lax-adaptor
             - bot-lax-adaptor-config
 
-bot-lax-adaptor-service:
-    file.managed:
-        - name: /etc/init/bot-lax-adaptor.conf
-        - source: salt://lax/config/etc-init-bot-lax-adaptor.conf
-        - template: jinja
-        - require:
-            - bot-lax-adaptor-install
-            
-    #service.running # see `processes.sls` for how it is run and `/var/log/upstart/bot-lax-adaptor-{proc}.log` for errors
 
 
 #
@@ -75,8 +66,6 @@ bot-lax-adaptor-log-file-monitoring:
         - name: /etc/syslog-ng/conf.d/bot-lax-adaptor.conf
         - source: salt://lax/config/etc-syslog-ng-conf.d-bot-lax-adaptor.conf
         - template: jinja
-        - require: 
-            - bot-lax-adaptor-service
 
 logrotate-for-bot-lax-adaptor-logs:
     file.managed:
@@ -132,6 +121,7 @@ bot-lax-nginx-conf:
         - template: jinja
         - source: salt://lax/config/etc-nginx-sitesenabled-bot-lax-adaptor.conf
         - require:
+            - file: uwsgi-params
             - pkg: nginx-server
             - web-ssl-enabled
         - watch_in:
@@ -152,29 +142,47 @@ bot-lax-uwsgi-conf:
 {% set apiprotocol = 'https' if domainname and not loadbalanced else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
 
-uwsgi-bot-lax-adaptor:
+bot-lax-uwsgi-upstart:
     file.managed:
         - name: /etc/init/uwsgi-bot-lax-adaptor.conf
         - source: salt://lax/config/etc-init-uwsgi-bot-lax-adaptor.conf
         - template: jinja
         - mode: 755
 
+bot-lax-uwsgi-systemd:
+    file.managed:
+        - name: /lib/systemd/system/uwsgi-bot-lax-adaptor.service
+        - source: salt://lax/config/lib-systemd-system-uwsgi-bot-lax-adaptor.service
+        - template: jinja
+        - mode: 644
+
+{% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
+{% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
+
+uwsgi-bot-lax-adaptor:
     service.running:
         - enable: True
         # doesn't seem to be understood by uwsgi, so we restart manually with a cmd.run state
         # - reload: True
         - require:
-            - file: uwsgi-params
-            - file: uwsgi-bot-lax-adaptor
+            - file: bot-lax-uwsgi-upstart
+            - file: bot-lax-uwsgi-systemd
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
 
-    cmd.run:
-        # we need to restart to load new Python code just deployed
-        - name: restart uwsgi-bot-lax-adaptor
-        - require:
-            - service: uwsgi-bot-lax-adaptor
+        - onchanges:
+            - bot-lax-adaptor
+        - watch:
+            # restart uwsgi if nginx service changes
+            - service: nginx-server-service
+
+    # disabled 2018-09-097 in preference for 'onchanges' and 'watch' above
+    #cmd.run:
+    #    # we need to restart to load new Python code just deployed
+    #    - name: restart uwsgi-bot-lax-adaptor
+    #    - require:
+    #        - service: uwsgi-bot-lax-adaptor
 
 # disabled. because of `listen` requisites in builder-base.nginx, I can't get this
 # state to reliably run after the service is running without the service then
