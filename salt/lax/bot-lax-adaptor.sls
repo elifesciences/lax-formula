@@ -5,7 +5,8 @@ bot-lax-adaptor:
     pkg.installed:
         - pkgs:
             - libxml2-dev 
-            - libxslt-dev
+            #- libxslt-dev # virtual package, don't do this
+            - libxslt1-dev
             - lzma-dev # provides 'lz' for compiling lxml
         - require:
             - pkg: python-dev
