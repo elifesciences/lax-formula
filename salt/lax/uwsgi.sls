@@ -41,6 +41,4 @@ uwsgi-lax:
             - file: lax-nginx-conf
             - file: lax-log-file
         - watch:
-            - install-lax
-            # restart uwsgi if nginx service changes
-            - service: nginx-server-service
+            - file: install-lax
