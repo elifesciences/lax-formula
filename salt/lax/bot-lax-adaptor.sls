@@ -71,6 +71,7 @@ logrotate-for-bot-lax-adaptor-logs:
     file.managed:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
+        - template: jinja
 
 {% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
 dir-{{ path }}:
