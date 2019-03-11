@@ -32,6 +32,11 @@ elife:
         app:
             name: lax
 
+    uwsgi:
+        services:
+            lax:
+                folder: /srv/lax
+
     newrelic:
         enabled: True
 

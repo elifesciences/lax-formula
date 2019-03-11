@@ -4,8 +4,12 @@
 bot-lax-adaptor:
     pkg.installed:
         - pkgs:
-            - libxml2-dev 
+            - libxml2-dev
+            {% if salt['grains.get']('osrelease') == '14.04' %} 
             - libxslt-dev
+            {% else %}
+            - libxslt1.1
+            {% endif %}
             - lzma-dev # provides 'lz' for compiling lxml
         - require:
             - pkg: python-dev

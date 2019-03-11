@@ -7,6 +7,8 @@ lax-nginx-conf:
             - file: uwsgi-params
             - pkg: nginx-server
             - cmd: web-ssl-enabled
+        - watch_in:
+            - nginx-server-service
 
 lax-uwsgi-conf:
     file.managed:
@@ -23,20 +25,16 @@ lax-upstart-conf:
         - template: jinja
         - mode: 755
 
-lax-systemd-conf:
-    file.managed:
-        - name: /lib/systemd/system/uwsgi-lax.service
-        - source: salt://lax/config/lib-systemd-system-uwsgi-lax.service
-        - template: jinja
-        - mode: 644
+uwsgi-lax.socket:
+    service.running:
+        - enable: True
 
 uwsgi-lax:
     service.running:
         - enable: True
-        #- reload: True # uwsgi+systemd problems
         - require:
+            - uwsgi-lax.socket
             - file: lax-upstart-conf
-            - file: lax-systemd-conf
             - file: lax-uwsgi-conf
             - file: lax-nginx-conf
             - file: lax-log-file
