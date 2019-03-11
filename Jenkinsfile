@@ -1,1 +1,1 @@
-elifeFormula('lax', '/srv/lax', 'lax-formula', ['s1604'])
+elifeFormula('lax', '/srv/lax', ['s1604'])
