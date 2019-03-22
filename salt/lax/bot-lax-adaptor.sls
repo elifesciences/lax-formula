@@ -21,6 +21,7 @@ bot-lax-adaptor:
     git.latest:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: https://github.com/elifesciences/bot-lax-adaptor
+        # lax will update bot-lax repo to the pinned version.
         - rev: master
         - branch: master
         - target: /opt/bot-lax-adaptor/
@@ -153,12 +154,14 @@ bot-lax-uwsgi-upstart:
         - template: jinja
         - mode: 755
 
-bot-lax-uwsgi-systemd:
-    file.managed:
-        - name: /lib/systemd/system/uwsgi-bot-lax-adaptor.service
-        - source: salt://lax/config/lib-systemd-system-uwsgi-bot-lax-adaptor.service
-        - template: jinja
-        - mode: 644
+{% if salt['grains.get']('osrelease') != "14.04" %}
+# systemd manages the uwsgi socket in 16.04+
+uwsgi-bot-lax-adaptor.socket:
+    service.running:
+        - enable: True
+        - require_in:
+            - uwsgi-bot-lax-adaptor
+{% endif %}
 
 {% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
@@ -170,7 +173,6 @@ uwsgi-bot-lax-adaptor:
         # - reload: True
         - require:
             - file: bot-lax-uwsgi-upstart
-            - file: bot-lax-uwsgi-systemd
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
@@ -181,7 +183,7 @@ uwsgi-bot-lax-adaptor:
             # restart uwsgi if nginx service changes
             - service: nginx-server-service
 
-    # disabled 2018-09-097 in preference for 'onchanges' and 'watch' above
+    # disabled 2018-09-09 in preference for 'onchanges' and 'watch' above
     #cmd.run:
     #    # we need to restart to load new Python code just deployed
     #    - name: restart uwsgi-bot-lax-adaptor

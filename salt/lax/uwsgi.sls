@@ -25,15 +25,18 @@ lax-upstart-conf:
         - template: jinja
         - mode: 755
 
+{% if salt['grains.get']('osrelease') != "14.04" %}
 uwsgi-lax.socket:
     service.running:
         - enable: True
+        - require_in:
+            - uwsgi-lax
+{% endif %}
 
 uwsgi-lax:
     service.running:
         - enable: True
         - require:
-            - uwsgi-lax.socket
             - file: lax-upstart-conf
             - file: lax-uwsgi-conf
             - file: lax-nginx-conf

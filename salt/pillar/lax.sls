@@ -36,6 +36,9 @@ elife:
         services:
             lax:
                 folder: /srv/lax
+            bot-lax-adaptor:
+                folder: /opt/bot-lax-adaptor
+                disable_newrelic: True # todo: revisit
 
     newrelic:
         enabled: True
