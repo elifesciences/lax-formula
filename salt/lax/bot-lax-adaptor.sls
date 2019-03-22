@@ -76,6 +76,7 @@ logrotate-for-bot-lax-adaptor-logs:
     file.managed:
         - name: /etc/logrotate.d/bot-lax-adaptor
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
+        - template: jinja
 
 {% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
 dir-{{ path }}:
@@ -169,7 +170,7 @@ uwsgi-bot-lax-adaptor.socket:
 uwsgi-bot-lax-adaptor:
     service.running:
         - enable: True
-        # doesn't seem to be understood by uwsgi, so we restart manually with a cmd.run state
+        # doesn't seem to be understood by uwsgi, leave the default behavior of restarting rather than reloading, only changes
         # - reload: True
         - require:
             - file: bot-lax-uwsgi-upstart
@@ -177,18 +178,9 @@ uwsgi-bot-lax-adaptor:
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
 
-        - onchanges:
-            - bot-lax-adaptor
         - watch:
-            # restart uwsgi if nginx service changes
-            - service: nginx-server-service
-
-    # disabled 2018-09-09 in preference for 'onchanges' and 'watch' above
-    #cmd.run:
-    #    # we need to restart to load new Python code just deployed
-    #    - name: restart uwsgi-bot-lax-adaptor
-    #    - require:
-    #        - service: uwsgi-bot-lax-adaptor
+            # will always trigger a restart since it's a `cmd` state
+            - cmd: bot-lax-adaptor
 
 # disabled. because of `listen` requisites in builder-base.nginx, I can't get this
 # state to reliably run after the service is running without the service then
