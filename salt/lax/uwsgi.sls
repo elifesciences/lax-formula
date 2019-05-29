@@ -30,7 +30,7 @@ uwsgi-lax.socket:
     service.running:
         - enable: True
         - require_in:
-            - uwsgi-lax
+            - service: uwsgi-lax
 {% endif %}
 
 uwsgi-lax:
