@@ -161,7 +161,7 @@ uwsgi-bot-lax-adaptor.socket:
     service.running:
         - enable: True
         - require_in:
-            - uwsgi-bot-lax-adaptor
+            - service: uwsgi-bot-lax-adaptor
 {% endif %}
 
 {% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
