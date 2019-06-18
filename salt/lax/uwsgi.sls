@@ -18,6 +18,7 @@ lax-uwsgi-conf:
         - require:
             - install-lax
 
+# 14.04, deprecated
 lax-upstart-conf:
     file.managed:
         - name: /etc/init/uwsgi-lax.conf
@@ -29,6 +30,8 @@ lax-upstart-conf:
 uwsgi-lax.socket:
     service.running:
         - enable: True
+        - require:
+            - file: uwsgi-socket-lax # builder-base-formula.uwsgi
         - require_in:
             - service: uwsgi-lax
 {% endif %}
@@ -37,6 +40,9 @@ uwsgi-lax:
     service.running:
         - enable: True
         - require:
+            {% if salt['grains.get']('osrelease') != "14.04" %}
+            - file: uwsgi-service-lax # builder-base-formula.uwsgi
+            {% endif %}
             - file: lax-upstart-conf
             - file: lax-uwsgi-conf
             - file: lax-nginx-conf
