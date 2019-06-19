@@ -1,42 +1,24 @@
-{% set number = 1 %}
+{% if salt['grains.get']('osrelease') != '14.04' %}
 
-{% if salt['grains.get']('oscodename') == 'xenial' %}
+# 16.04+
 
-# template service
-bot-lax-adaptor-systemd:
+# these are the states multiservice.sls depends on
+# we can use it to make sure other states are executed before the service is started/restarted
+bot-lax-adaptor-service:
     file.managed:
         - name: /lib/systemd/system/bot-lax-adaptor@.service
         - source: salt://lax/config/lib-systemd-system-bot-lax-adaptor@.service
         - template: jinja
+        - context:
+            process: bot-lax-adaptor
         - require:
             - bot-lax-adaptor-install
 
-# manages many bot-lax-adaptor services
-bot-lax-adaptor-script:
-    file.managed:
-        - name: /opt/bot-lax-adaptors.sh
-        - source: salt://elife/templates/systemd-multiple-processes.sh
-        - template: jinja
-        - mode: 740
-        - context:
-            process: bot-lax-adaptor
-            number: {{ number }}
-
-# service for management script
-bot-lax-adaptors-task:
-    file.managed:
-        - name: /lib/systemd/system/bot-lax-adaptors.service
-        - source: salt://lax/config/lib-systemd-system-bot-lax-adaptors.service
-        - require:
-            - bot-lax-adaptor-script
-
-bot-lax-adaptors-start:
-    service.running:
-        - name: bot-lax-adaptors
-        - require:
-            - file: bot-lax-adaptors-task
-
 {% else %}
+
+# 14.04
+
+{% set number = 1 %}
 
 bot-lax-adaptor-upstart:
     file.managed:
@@ -66,7 +48,6 @@ bot-lax-adaptors-start:
         - name: start bot-lax-adaptors
         - require:
             - bot-lax-adaptors-task
-{% endif %}
 
 bot-lax-adaptors-monitor:
     cron.present:
@@ -75,3 +56,5 @@ bot-lax-adaptors-monitor:
         - minute: '*/5'
         - require:
             - bot-lax-adaptors-start
+{% endif %}
+

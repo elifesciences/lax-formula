@@ -17,6 +17,7 @@ base:
         #- elife-reporting
         - lax.adaptors
         # disabled on local VMs
+        #- elife.multiservice
         #- lax.processes
         # only on the first instance of a prod cluster
         #- lax.cron

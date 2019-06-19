@@ -40,6 +40,12 @@ elife:
                 folder: /opt/bot-lax-adaptor
                 disable_newrelic: True # todo: revisit
 
+    multiservice:
+        services:
+            bot-lax-adaptor:
+                service_template: bot-lax-adaptor-service
+                num_processes: 1
+
     newrelic:
         enabled: True
 
