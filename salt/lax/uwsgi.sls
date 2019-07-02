@@ -7,6 +7,8 @@ lax-nginx-conf:
             - file: uwsgi-params
             - pkg: nginx-server
             - cmd: web-ssl-enabled
+        - watch_in:
+            - nginx-server-service
 
 lax-uwsgi-conf:
     file.managed:
@@ -16,6 +18,7 @@ lax-uwsgi-conf:
         - require:
             - install-lax
 
+# 14.04, deprecated
 lax-upstart-conf:
     file.managed:
         - name: /etc/init/uwsgi-lax.conf
@@ -23,20 +26,24 @@ lax-upstart-conf:
         - template: jinja
         - mode: 755
 
-lax-systemd-conf:
-    file.managed:
-        - name: /lib/systemd/system/uwsgi-lax.service
-        - source: salt://lax/config/lib-systemd-system-uwsgi-lax.service
-        - template: jinja
-        - mode: 644
+{% if salt['grains.get']('osrelease') != "14.04" %}
+uwsgi-lax.socket:
+    service.running:
+        - enable: True
+        - require:
+            - file: uwsgi-socket-lax # builder-base-formula.uwsgi
+        - require_in:
+            - service: uwsgi-lax
+{% endif %}
 
 uwsgi-lax:
     service.running:
         - enable: True
-        #- reload: True # uwsgi+systemd problems
         - require:
+            {% if salt['grains.get']('osrelease') != "14.04" %}
+            - file: uwsgi-service-lax # builder-base-formula.uwsgi
+            {% endif %}
             - file: lax-upstart-conf
-            - file: lax-systemd-conf
             - file: lax-uwsgi-conf
             - file: lax-nginx-conf
             - file: lax-log-file

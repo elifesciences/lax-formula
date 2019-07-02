@@ -4,8 +4,12 @@
 bot-lax-adaptor:
     pkg.installed:
         - pkgs:
-            - libxml2-dev 
+            - libxml2-dev
+            {% if salt['grains.get']('osrelease') == '14.04' %} 
             - libxslt-dev
+            {% else %}
+            - libxslt1.1
+            {% endif %}
             - lzma-dev # provides 'lz' for compiling lxml
         - require:
             - pkg: python-dev
@@ -17,6 +21,7 @@ bot-lax-adaptor:
     git.latest:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: https://github.com/elifesciences/bot-lax-adaptor
+        # lax will update bot-lax repo to the pinned version.
         - rev: master
         - branch: master
         - target: /opt/bot-lax-adaptor/
@@ -150,12 +155,14 @@ bot-lax-uwsgi-upstart:
         - template: jinja
         - mode: 755
 
-bot-lax-uwsgi-systemd:
-    file.managed:
-        - name: /lib/systemd/system/uwsgi-bot-lax-adaptor.service
-        - source: salt://lax/config/lib-systemd-system-uwsgi-bot-lax-adaptor.service
-        - template: jinja
-        - mode: 644
+{% if salt['grains.get']('osrelease') != "14.04" %}
+# systemd manages the uwsgi socket in 16.04+
+uwsgi-bot-lax-adaptor.socket:
+    service.running:
+        - enable: True
+        - require_in:
+            - service: uwsgi-bot-lax-adaptor
+{% endif %}
 
 {% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
@@ -167,7 +174,6 @@ uwsgi-bot-lax-adaptor:
         # - reload: True
         - require:
             - file: bot-lax-uwsgi-upstart
-            - file: bot-lax-uwsgi-systemd
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
