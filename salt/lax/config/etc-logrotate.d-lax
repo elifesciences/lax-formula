@@ -1,4 +1,6 @@
-/var/log/*lax.log {
+/var/log/ingestion-lax.log
+/var/log/lax.log
+{
     daily
     rotate 7
     notifempty
