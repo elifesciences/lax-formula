@@ -47,10 +47,7 @@ elife:
                 num_processes: 1
 
     glencoe:
-        skip_requests_cache_by_env: 
-            - prod
-            - end2end
-            - continuumtest
+        cache_requests: True # default behaviour is to cache requests
 
     newrelic:
         enabled: True
