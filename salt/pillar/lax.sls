@@ -14,6 +14,9 @@ lax:
             - '127.0.0.1' # internal
             - '10.0.2.2' # vagrant
 
+    glencoe:
+        cache_requests: True # default behaviour is to cache requests
+
     aws:
         access_key_id: null
         secret_access_key: null
@@ -45,9 +48,6 @@ elife:
             bot-lax-adaptor:
                 service_template: bot-lax-adaptor-service
                 num_processes: 1
-
-    glencoe:
-        cache_requests: True # default behaviour is to cache requests
 
     newrelic:
         enabled: True
