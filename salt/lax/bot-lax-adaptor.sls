@@ -203,5 +203,7 @@ periodically-remove-expired-cache-entries:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: cd /opt/bot-lax-adaptor/ && ./clear-expired-requests-cache.sh
         - identifier: rm-expired-cache-entries
-        - special: "@weekly"
+        - minute: 0
+        - hour: 0
+        - dayweek: 1 # Monday
 
