@@ -14,6 +14,9 @@ lax:
             - '127.0.0.1' # internal
             - '10.0.2.2' # vagrant
 
+    glencoe:
+        cache_requests: True # default behaviour is to cache requests
+
     aws:
         access_key_id: null
         secret_access_key: null
