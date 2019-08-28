@@ -11,6 +11,7 @@ bot-lax-adaptor:
             - libxslt1.1
             {% endif %}
             - lzma-dev # provides 'lz' for compiling lxml
+            - sqlite3 # for accessing requests_cache db
         - require:
             - pkg: python-dev
 
@@ -117,6 +118,7 @@ move /opt/bot-lax/article-xml/ to /ext/article-xml:
         - name: /ext/mv-article-xml.sh
         - source: salt://lax/scripts/mv-article-xml.sh
 
+
 #
 # bot-lax web api
 # 
@@ -182,6 +184,7 @@ uwsgi-bot-lax-adaptor:
             # will always trigger a restart since it's a `cmd` state
             - cmd: bot-lax-adaptor
 
+
 # disabled. because of `listen` requisites in builder-base.nginx, I can't get this
 # state to reliably run after the service is running without the service then
 # being restarted 
@@ -193,4 +196,14 @@ uwsgi-bot-lax-adaptor:
 #        - request_interval: 1 # second
 #        - require:
 #            - uwsgi-bot-lax-adaptor
+
+
+periodically-remove-expired-cache-entries:
+    cron.present:
+        - user: {{ pillar.elife.deploy_user.username }}
+        - name: cd /opt/bot-lax-adaptor/ && ./clear-expired-requests-cache.sh
+        - identifier: rm-expired-cache-entries
+        - minute: 0
+        - hour: 0
+        - dayweek: 1 # Monday
 
