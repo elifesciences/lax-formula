@@ -77,7 +77,7 @@ lax-ubr-db-backup:
 
 configure-lax:
     cmd.run:
-        - user: {{ pillar.elife.deploy_user.username }}
+        - runas: {{ pillar.elife.deploy_user.username }}
         - cwd: /srv/lax/
         - name: |
             {% if pillar.elife.env in ['dev', 'ci'] %}

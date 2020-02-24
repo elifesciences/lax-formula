@@ -15,7 +15,7 @@ ejp-lax-adaptor:
 
     cmd.run:
         - cwd: /opt/ejp-lax-adaptor/
-        - user: {{ pillar.elife.deploy_user.username }}
+        - runas: {{ pillar.elife.deploy_user.username }}
         - name: ./install.sh
         - require:
             - git: ejp-lax-adaptor

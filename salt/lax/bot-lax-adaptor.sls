@@ -37,7 +37,7 @@ bot-lax-adaptor:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
         - name: ./pin.sh /srv/lax/bot-lax-adaptor.sha1
-        - user: {{ pillar.elife.deploy_user.username }}
+        - runas: {{ pillar.elife.deploy_user.username }}
         - require:
             - pkg: bot-lax-adaptor
             - file: bot-lax-adaptor
@@ -56,7 +56,7 @@ bot-lax-adaptor-install:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
         - name: ./install.sh
-        - user: {{ pillar.elife.deploy_user.username }}
+        - runas: {{ pillar.elife.deploy_user.username }}
         - require:
             - bot-lax-adaptor
             - bot-lax-adaptor-config
