@@ -5,11 +5,7 @@ bot-lax-adaptor:
     pkg.installed:
         - pkgs:
             - libxml2-dev
-            {% if salt['grains.get']('osrelease') == '14.04' %} 
-            - libxslt-dev
-            {% else %}
             - libxslt1.1
-            {% endif %}
             - lzma-dev # provides 'lz' for compiling lxml
             - sqlite3 # for accessing requests_cache db
         - require:
@@ -37,7 +33,7 @@ bot-lax-adaptor:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
         - name: ./pin.sh /srv/lax/bot-lax-adaptor.sha1
-        - user: {{ pillar.elife.deploy_user.username }}
+        - runas: {{ pillar.elife.deploy_user.username }}
         - require:
             - pkg: bot-lax-adaptor
             - file: bot-lax-adaptor
@@ -55,8 +51,8 @@ bot-lax-adaptor-config:
 bot-lax-adaptor-install:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
-        - name: ./install.sh
-        - user: {{ pillar.elife.deploy_user.username }}
+        - name: ls -lahR ./schema/; ./install.sh
+        - runas: {{ pillar.elife.deploy_user.username }}
         - require:
             - bot-lax-adaptor
             - bot-lax-adaptor-config
