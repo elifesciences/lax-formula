@@ -1,1 +1,1 @@
-elifeFormula('lax', '/srv/lax', null, ['sNextSalt'])
+elifeFormula('lax', '/srv/lax', null, ['snsalt'])
