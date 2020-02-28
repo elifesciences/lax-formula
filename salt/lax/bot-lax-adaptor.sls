@@ -147,20 +147,15 @@ bot-lax-uwsgi-conf:
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
 
 bot-lax-uwsgi-upstart:
-    file.managed:
+    file.absent:
         - name: /etc/init/uwsgi-bot-lax-adaptor.conf
-        - source: salt://lax/config/etc-init-uwsgi-bot-lax-adaptor.conf
-        - template: jinja
-        - mode: 755
 
-{% if salt['grains.get']('osrelease') != "14.04" %}
 # systemd manages the uwsgi socket in 16.04+
 uwsgi-bot-lax-adaptor.socket:
     service.running:
         - enable: True
         - require_in:
             - service: uwsgi-bot-lax-adaptor
-{% endif %}
 
 {% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
@@ -171,7 +166,6 @@ uwsgi-bot-lax-adaptor:
         # doesn't seem to be understood by uwsgi, leave the default behavior of restarting rather than reloading, only changes
         # - reload: True
         - require:
-            - file: bot-lax-uwsgi-upstart
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
