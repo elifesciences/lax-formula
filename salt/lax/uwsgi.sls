@@ -18,15 +18,11 @@ lax-uwsgi-conf:
         - require:
             - install-lax
 
-# 14.04, deprecated
+# todo: remove
 lax-upstart-conf:
-    file.managed:
+    file.absent:
         - name: /etc/init/uwsgi-lax.conf
-        - source: salt://lax/config/etc-init-uwsgi-lax.conf
-        - template: jinja
-        - mode: 755
 
-{% if salt['grains.get']('osrelease') != "14.04" %}
 uwsgi-lax.socket:
     service.running:
         - enable: True
@@ -34,16 +30,12 @@ uwsgi-lax.socket:
             - file: uwsgi-socket-lax # builder-base-formula.uwsgi
         - require_in:
             - service: uwsgi-lax
-{% endif %}
 
 uwsgi-lax:
     service.running:
         - enable: True
         - require:
-            {% if salt['grains.get']('osrelease') != "14.04" %}
             - file: uwsgi-service-lax # builder-base-formula.uwsgi
-            {% endif %}
-            - file: lax-upstart-conf
             - file: lax-uwsgi-conf
             - file: lax-nginx-conf
             - file: lax-log-file
