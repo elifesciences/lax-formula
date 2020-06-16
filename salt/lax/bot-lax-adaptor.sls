@@ -191,7 +191,9 @@ uwsgi-bot-lax-adaptor:
 periodically-remove-expired-cache-entries:
     cron.present:
         - user: {{ pillar.elife.deploy_user.username }}
-        - name: cd /opt/bot-lax-adaptor/ && ./clear-expired-requests-cache.sh
+        # sqlite essentially duplicates the database for this operation
+        # - https://sqlite.org/tempfiles.html#write_ahead_log_wal_files
+        - name: SQLITE_TMPDIR=/ext/tmp cd /opt/bot-lax-adaptor/ && ./clear-expired-requests-cache.sh
         - identifier: rm-expired-cache-entries
         - minute: 0
         - hour: 0
