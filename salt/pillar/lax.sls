@@ -4,6 +4,7 @@ lax:
         allow_invalid_ajson: False
         reporting_bucket: null
         cache_headers_ttl: null
+        merge_foreign_fragments: True
         users:
             api_gateway:
                 username: api-gateway
