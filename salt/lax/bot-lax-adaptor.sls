@@ -199,3 +199,15 @@ periodically-remove-expired-cache-entries:
         - hour: 0
         - dayweek: 1 # Monday
 
+
+# once a week, remove any uploaded files that are more than a year old
+periodically-remove-expired-old-uploaded-files:
+    cron.present:
+        - user: {{ pillar.elife.deploy_user.username }}
+        # sqlite essentially duplicates the database for this operation
+        # - https://sqlite.org/tempfiles.html#write_ahead_log_wal_files
+        - name: cd /ext/uploads/ && find . -mtime +365 -delete
+        - identifier: rm-old-uploaded-files
+        - minute: 0
+        - hour: 0
+        - dayweek: 2 # Tuesday
