@@ -51,7 +51,7 @@ bot-lax-adaptor-config:
 bot-lax-adaptor-install:
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
-        - name: ls -lahR ./schema/; ./install.sh
+        - name: ./install.sh
         - runas: {{ pillar.elife.deploy_user.username }}
         - require:
             - bot-lax-adaptor
