@@ -5,8 +5,6 @@ base:
         - elife.uwsgi
         - elife.postgresql-11
         - elife.postgresql-appdb
-        - elife.mercurial
-        - elife.no-more-daemon
         - elife.external-volume
         - elife.newrelic-python
         - lax
