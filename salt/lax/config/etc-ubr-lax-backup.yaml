@@ -1,2 +1,7 @@
+{% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
+rds-snapshot:
+    - {{ salt['elife.cfg']('project.rds_dbname') }}
+{% else %}
 postgresql-database:
     - {{ salt['elife.cfg']('project.rds_dbname') or pillar.elife.db.app.name }}
+{% endif %}
