@@ -1,7 +1,5 @@
-{% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
-rds-snapshot:
-    - {{ salt['elife.cfg']('project.rds_instance_id') }}
-{% else %}
+# regular backup, executed daily by cron
+# an RDS backup is available in /etc/ubr-alt for ad-hoc RDS snapshots.
+# RDS does a daily backup regardless.
 postgresql-database:
     - {{ salt['elife.cfg']('project.rds_dbname') or pillar.elife.db.app.name }}
-{% endif %}
