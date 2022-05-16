@@ -1,0 +1,6 @@
+# alternative backup for lax.
+# used during CI deployments to as regular db dump+upload takes a long time.
+{% if salt['elife.cfg']('cfn.outputs.RDSHost') %}
+rds-snapshot:
+    - {{ salt['elife.cfg']('project.rds_instance_id') }}
+{% endif %}

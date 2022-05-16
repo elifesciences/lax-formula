@@ -75,6 +75,13 @@ lax-ubr-db-backup:
         - source: salt://lax/config/etc-ubr-lax-backup.yaml
         - template: jinja
 
+lax-ubr-alt-db-backup-rds:
+    file.managed:
+        - name: /etc/ubr-alt/lax-backup.yaml
+        - source: salt://lax/config/etc-ubr-alt-lax-backup.yaml
+        - makedirs: True
+        - template: jinja
+
 configure-lax:
     cmd.run:
         - runas: {{ pillar.elife.deploy_user.username }}
