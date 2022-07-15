@@ -18,11 +18,6 @@ lax-uwsgi-conf:
         - require:
             - install-lax
 
-# todo: remove
-lax-upstart-conf:
-    file.absent:
-        - name: /etc/init/uwsgi-lax.conf
-
 uwsgi-lax.socket:
     service.running:
         - enable: True
