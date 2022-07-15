@@ -99,7 +99,6 @@ configure-lax:
             - file: lax-log-file
             - file: lax-ingest-log-file
 
-
 aws-credentials:
     file.managed:
         - name: /home/{{ pillar.elife.deploy_user.username }}/.aws/credentials
@@ -118,20 +117,9 @@ aws-credentials-www-data-user:
         - source: salt://lax/config/home-deploy-user-.aws-credentials
         - template: jinja
 
-
 reset-script:
     file.managed:
         - name: /usr/local/bin/reset_script
         - source: salt://lax/config/usr-local-bin-reset_script
         - mode: 555
 
-#{% if pillar.elife.env == 'end2end' and  salt['elife.rev']() == 'approved' %}
-#restore-backup-from-production:
-#    cmd.script:
-#        - name: restore-lax-script
-#        - source: salt://lax/scripts/restore-lax.sh
-#        - template: jinja
-#        # as late as possible
-#        - require:
-#            - cmd: configure-lax
-#{% endif %}
