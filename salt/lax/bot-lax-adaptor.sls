@@ -92,6 +92,7 @@ dir-{{ path }}:
             - cmd: bot-lax-writable-dirs
 
     cmd.run:
+        # sticky group, new files inherit the group owner of the directory (www-data).
         - name: chmod -R g+s {{ path }}
         - require:
             - file: dir-{{ path }}
@@ -100,6 +101,22 @@ dir-{{ path }}:
 bot-lax-writable-dirs:
     cmd.run:
         - name: echo "dirs created"
+
+# fix for issue: https://github.com/elifesciences/issues/issues/7534
+# bit of a hack. essentially: cache db is created by www-data user and the elife user can't write to it as necessary.
+# this creates the cache db as elife and grants the group (www-data, sticky guid set) write access.
+# this issue came about when end2end was recreated and then failed end2end tests.
+# a subsequent highstate hadn't been run on the end2end instance before the tests.
+bot-lax-init-cache-db:
+    cmd.run:
+        - cwd: /opt/bot-lax-adaptor/src
+        - runas: {{ pillar.elife.deploy_user.username }}
+        - name: |
+            ../venv/bin/python3 -c 'import cache_requests; print(cache_requests.install_cache_requests())'
+            chmod g+w /ext/cache/requests_cache.sqlite3
+        - require:
+            - bot-lax-adaptor-install
+            - bot-lax-writable-dirs
 
 #
 #
@@ -146,10 +163,6 @@ bot-lax-uwsgi-conf:
 {% set apiprotocol = 'https' if domainname and not loadbalanced else 'http' %}
 {% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
 
-bot-lax-uwsgi-upstart:
-    file.absent:
-        - name: /etc/init/uwsgi-bot-lax-adaptor.conf
-
 # systemd manages the uwsgi socket in 16.04+
 uwsgi-bot-lax-adaptor.socket:
     service.running:
@@ -169,6 +182,7 @@ uwsgi-bot-lax-adaptor:
             - file: bot-lax-uwsgi-conf
             - file: bot-lax-nginx-conf
             - bot-lax-writable-dirs
+            - bot-lax-init-cache-db
 
         - watch:
             # will always trigger a restart since it's a `cmd` state
