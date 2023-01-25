@@ -27,4 +27,5 @@ daily-ejp-import:
         - user: {{ pillar.elife.deploy_user.username }}
         - name: /var/log/lax-daily-ejp-import.log
         - mode: 740
+        - replace: False
 

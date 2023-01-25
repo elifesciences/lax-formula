@@ -48,6 +48,7 @@ lax-ingest-log-file:
         - user: {{ pillar.elife.webserver.username }}
         - group: {{ pillar.elife.webserver.username }}
         - mode: 660
+        - replace: False
 
 lax-syslog-conf:
     file.managed:
