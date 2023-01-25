@@ -32,7 +32,12 @@ bot-lax-adaptor:
     # to affect the git rev, ensure it's pinned in lax's bot-lax-adaptor.sha1
     cmd.run:
         - cwd: /opt/bot-lax-adaptor
-        - name: ./pin.sh /srv/lax/bot-lax-adaptor.sha1
+        - name: |
+            # lsh@2023-01-25: added a 'git fetch' as git.latest above isn't fetching a revision that's available.
+            # * https://github.com/saltstack/salt/issues/24409#issuecomment-228708638
+            # * https://github.com/saltstack/salt/issues/34367
+            git fetch
+            ./pin.sh /srv/lax/bot-lax-adaptor.sha1
         - runas: {{ pillar.elife.deploy_user.username }}
         - require:
             - pkg: bot-lax-adaptor
