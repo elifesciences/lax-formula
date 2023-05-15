@@ -48,6 +48,7 @@ lax-ingest-log-file:
         - user: {{ pillar.elife.webserver.username }}
         - group: {{ pillar.elife.webserver.username }}
         - mode: 660
+        - replace: False
 
 lax-syslog-conf:
     file.managed:
@@ -75,6 +76,13 @@ lax-ubr-db-backup:
         - source: salt://lax/config/etc-ubr-lax-backup.yaml
         - template: jinja
 
+lax-ubr-alt-db-backup-rds:
+    file.managed:
+        - name: /etc/ubr-alt/lax-backup.yaml
+        - source: salt://lax/config/etc-ubr-alt-lax-backup.yaml
+        - makedirs: True
+        - template: jinja
+
 configure-lax:
     cmd.run:
         - runas: {{ pillar.elife.deploy_user.username }}
@@ -91,7 +99,6 @@ configure-lax:
             - file: cfg-file
             - file: lax-log-file
             - file: lax-ingest-log-file
-
 
 aws-credentials:
     file.managed:
@@ -111,20 +118,9 @@ aws-credentials-www-data-user:
         - source: salt://lax/config/home-deploy-user-.aws-credentials
         - template: jinja
 
-
 reset-script:
     file.managed:
         - name: /usr/local/bin/reset_script
         - source: salt://lax/config/usr-local-bin-reset_script
         - mode: 555
 
-#{% if pillar.elife.env == 'end2end' and  salt['elife.rev']() == 'approved' %}
-#restore-backup-from-production:
-#    cmd.script:
-#        - name: restore-lax-script
-#        - source: salt://lax/scripts/restore-lax.sh
-#        - template: jinja
-#        # as late as possible
-#        - require:
-#            - cmd: configure-lax
-#{% endif %}
