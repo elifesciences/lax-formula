@@ -21,16 +21,4 @@ Restart=on-failure
 TimeoutStopSec=30
 User={{ pillar.elife.deploy_user.username }}
 WorkingDirectory=/opt/bot-lax-adaptor
-
-# lsh@2023-03-08: disabled newrelic agent for bot-lax-adaptor.
-# newrelic is emitting text on stdout that is messing with the expected json response.
-# - https://github.com/elifesciences/lax/pull/847
-# - https://alfred.elifesciences.org/job/test-lax/1131/
-# .bot-lax-listener.sh doesn't seem to use pillar.elife.env *or* the instance ID ...
-#{% if pillar.elife.newrelic.enabled %}
-#Environment="NEW_RELIC_CONFIG_FILE=/srv/lax/newrelic.ini"
-#ExecStart=/opt/bot-lax-adaptor/venv/bin/newrelic-admin run-program ./.bot-lax-listener.sh {{ pillar.elife.env }} %I
-#{% else %}
-#ExecStart=/opt/bot-lax-adaptor/.bot-lax-listener.sh {{ pillar.elife.env }} %I
-#{% endif %}
 ExecStart=/opt/bot-lax-adaptor/.bot-lax-listener.sh {{ pillar.elife.env }} %I
