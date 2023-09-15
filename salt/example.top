@@ -6,7 +6,6 @@ base:
         - elife.postgresql-12
         - elife.postgresql-appdb
         - elife.external-volume
-        - elife.newrelic-python
         - lax
         - lax.uwsgi
         - lax.query-upload

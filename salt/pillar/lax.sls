@@ -42,7 +42,6 @@ elife:
                 folder: /srv/lax
             bot-lax-adaptor:
                 folder: /opt/bot-lax-adaptor
-                disable_newrelic: True # todo: revisit
 
     multiservice:
         services:
@@ -50,10 +49,3 @@ elife:
                 service_template: bot-lax-adaptor-service
                 num_processes: 1
 
-    newrelic:
-        enabled: True
-
-    newrelic_python:
-        application_folder: /srv/lax
-        service: uwsgi-lax
-        dependency_state: configure-lax
