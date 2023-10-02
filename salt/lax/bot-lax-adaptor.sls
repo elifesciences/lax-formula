@@ -62,8 +62,6 @@ bot-lax-adaptor-install:
             - bot-lax-adaptor
             - bot-lax-adaptor-config
 
-
-
 #
 # logging
 #
@@ -80,7 +78,7 @@ logrotate-for-bot-lax-adaptor-logs:
         - source: salt://lax/config/etc-logrotate.d-bot-lax-adaptor
         - template: jinja
 
-{% for path in ['/ext/uploads/', '/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
+{% for path in ['/ext/cache/', '/var/log/bot-lax-adaptor/'] %}
 dir-{{ path }}:
     file.directory:
         - name: {{ path }}
@@ -123,6 +121,17 @@ bot-lax-init-cache-db:
             - bot-lax-adaptor-install
             - bot-lax-writable-dirs
 
+periodically-remove-expired-cache-entries:
+    cron.present:
+        - user: {{ pillar.elife.deploy_user.username }}
+        # sqlite essentially duplicates the database for this operation
+        # - https://sqlite.org/tempfiles.html#write_ahead_log_wal_files
+        - name: SQLITE_TMPDIR=/ext/tmp cd /opt/bot-lax-adaptor/ && ./clear-expired-requests-cache.sh
+        - identifier: rm-expired-cache-entries
+        - minute: 0
+        - hour: 0
+        - dayweek: 1 # Monday
+
 #
 #
 #
@@ -136,97 +145,34 @@ move /opt/bot-lax/article-xml/ to /ext/article-xml:
         - name: /ext/mv-article-xml.sh
         - source: salt://lax/scripts/mv-article-xml.sh
 
-
 #
 # bot-lax web api
 # 
 
+dir-/ext/uploads/:
+    file.absent:
+        - name: /ext/uploads
+
 bot-lax-nginx-conf:
-    file.managed:
+    file.absent:
         - name: /etc/nginx/sites-enabled/bot-lax-adaptor.conf
-        - template: jinja
-        - source: salt://lax/config/etc-nginx-sitesenabled-bot-lax-adaptor.conf
-        - require:
-            - file: uwsgi-params
-            - pkg: nginx-server
-            - web-ssl-enabled
         - watch_in:
             - service: nginx-server-service
 
 bot-lax-uwsgi-conf:
-    file.managed:
+    file.absent:
         - name: /opt/bot-lax-adaptor/uwsgi.ini
-        - source: salt://lax/config/opt-bot-lax-adaptor-uwsgi.ini
-        - template: jinja
-        - require:
-            - bot-lax-adaptor-install
-            - bot-lax-writable-dirs
 
-{% set domainname = salt['elife.cfg']('cfn.outputs.DomainName') %}
-{% set loadbalanced = salt['elife.cfg']('project.elb') %}
-
-{% set apiprotocol = 'https' if domainname and not loadbalanced else 'http' %}
-{% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
-
-# systemd manages the uwsgi socket in 16.04+
 uwsgi-bot-lax-adaptor.socket:
-    service.running:
-        - enable: True
-        - require_in:
-            - service: uwsgi-bot-lax-adaptor
-
-{% set apiprotocol = 'https' if salt['elife.cfg']('cfn.outputs.DomainName') else 'http' %}
-{% set apihost = salt['elife.cfg']('project.full_hostname', 'localhost') %}
+    service.dead:
+        - enable: False
 
 uwsgi-bot-lax-adaptor:
-    service.running:
-        - enable: True
-        # doesn't seem to be understood by uwsgi, leave the default behavior of restarting rather than reloading, only changes
-        # - reload: True
-        - require:
-            - file: bot-lax-uwsgi-conf
-            - file: bot-lax-nginx-conf
-            - bot-lax-writable-dirs
-            - bot-lax-init-cache-db
-
-        - watch:
-            # will always trigger a restart since it's a `cmd` state
-            - cmd: bot-lax-adaptor
-
-
-# disabled. because of `listen` requisites in builder-base.nginx, I can't get this
-# state to reliably run after the service is running without the service then
-# being restarted 
-#uwsgi-bot-lax-smoke-test:
-#    http.wait_for_successful_query:
-#        - name: {{ apiprotocol }}://{{ apihost }}:8001/ui/
-#        - status: 200
-#        - wait_for: 10 # seconds. five checks with 1 second between each
-#        - request_interval: 1 # second
-#        - require:
-#            - uwsgi-bot-lax-adaptor
-
-
-periodically-remove-expired-cache-entries:
-    cron.present:
-        - user: {{ pillar.elife.deploy_user.username }}
-        # sqlite essentially duplicates the database for this operation
-        # - https://sqlite.org/tempfiles.html#write_ahead_log_wal_files
-        - name: SQLITE_TMPDIR=/ext/tmp cd /opt/bot-lax-adaptor/ && ./clear-expired-requests-cache.sh
-        - identifier: rm-expired-cache-entries
-        - minute: 0
-        - hour: 0
-        - dayweek: 1 # Monday
-
+    service.dead:
+        - enable: False
 
 # once a week, remove any uploaded files that are more than a year old
 periodically-remove-expired-old-uploaded-files:
-    cron.present:
+    cron.absent:
         - user: {{ pillar.elife.deploy_user.username }}
-        # sqlite essentially duplicates the database for this operation
-        # - https://sqlite.org/tempfiles.html#write_ahead_log_wal_files
-        - name: cd /ext/uploads/ && find . -mtime +365 -delete
         - identifier: rm-old-uploaded-files
-        - minute: 0
-        - hour: 0
-        - dayweek: 2 # Tuesday

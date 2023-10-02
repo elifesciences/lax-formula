@@ -10,11 +10,6 @@ lax:
                 username: api-gateway
                 password: foo
 
-    botlax:
-        api_whitelist:
-            - '127.0.0.1' # internal
-            - '10.0.2.2' # vagrant
-
     glencoe:
         cache_requests: True # default behaviour is to cache requests
 
@@ -40,12 +35,5 @@ elife:
         services:
             lax:
                 folder: /srv/lax
-            bot-lax-adaptor:
-                folder: /opt/bot-lax-adaptor
 
-    multiservice:
-        services:
-            bot-lax-adaptor:
-                service_template: bot-lax-adaptor-service
-                num_processes: 1
 
