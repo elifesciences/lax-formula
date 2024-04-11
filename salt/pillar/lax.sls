@@ -32,6 +32,8 @@ lax:
             url:
 
 elife:
+    webserver:
+        app: caddy
     db:
         app:
             name: lax
@@ -40,6 +42,7 @@ elife:
         services:
             lax:
                 folder: /srv/lax
+                protocol: http-socket
 
     multiservice:
         services:
