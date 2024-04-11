@@ -11,7 +11,10 @@ lax-caddy-conf:
             - cmd: caddy-validate-config
             - service: uwsgi-lax
         - watch_in:
-            - caddy-server-service
+            # restart caddy if caddy config changes
+            - service: caddy-server-service
+            # restart uwsgi if caddy config changes
+            - service: uwsgi-lax
 
 {% else %}
 lax-nginx-conf:
@@ -26,7 +29,10 @@ lax-nginx-conf:
         - require_in:
             - service: uwsgi-lax
         - watch_in:
-            - nginx-server-service
+            # restart nginx if nginx config changes
+            - service: nginx-server-service
+            # restart uwsgi if nginx config changes
+            - service: uwsgi-lax
 {% endif %}
 
 lax-uwsgi-conf:
@@ -53,4 +59,9 @@ uwsgi-lax:
             - file: lax-uwsgi-conf
             - file: lax-log-file
         - watch:
+            # restart uwsgi if lax code changes
             - file: install-lax
+            # restart uwsgi if lax config changes
+            - cfg-file
+            # restart uwsgi if uwsgi config changes
+            - lax-uwsgi-conf
