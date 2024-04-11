@@ -1,0 +1,76 @@
+(config) {
+
+    log {
+        output file /var/log/caddy/access.log
+        format json {
+            time_format rfc3339
+        }
+    }
+
+    handle /ping {
+        skip_log
+        header Cache-Control "must-revalidate, no-cache, no-store, private"
+        header Content-Type "text/plain; charset=UTF-8"
+        respond "pong"
+    }
+
+    # used for admin
+    handle_path /static {
+        file_server {
+            root /srv/lax/collected-static
+        }
+    }
+
+    handle * {
+
+        request_body {
+            max_size 5MB
+        }
+
+        # Authenticates the api-gateway.
+        # Captures the value of the api-gateway "X-Consumer-Groups" HTTP header into the variable `consumer_groups_filtered`,
+        # but only if: the request is local (127.0.0.1) or has a valid HTTP Authorization header.
+        # lsh@2024-04-10: translation from nginx modified slightly to add the header as the third segment in the 
+        # regular expression so it's value can be captured. Placeholders (variables) can't otherwise be used.
+        # lsh@2024-04-10: how to test this?? using plain curl:
+        #   curl -v -H "X-Consumer-Groups: foobar" "http://127.0.0.1/profiles"
+        #   curl -v -H "X-Consumer-Groups: foobar" "http://some-user:some-credentials@localhost/profiles"
+        # if there is a match then 'foobar' should be present in the response header "X-Consumer-Groups-Filtered".
+        map {client_ip}/{http.request.header.authorization}/{http.request.header.X-Consumer-Groups} {consumer_groups_filtered} {
+            "~^127.0.0.1/.*/(.+)$" "${1}"
+            {% for user in pillar.lax.app.users.values() -%}
+            "~^.*/Basic {{ salt['hashutil.base64_b64encode'](user['username'] ~ ':' ~ user['password']) }}/(.+)$" "${1}"
+            {% endfor -%}
+            default ""
+        }
+
+        # authentication debugging
+        header X-Consumer-Groups-Filtered {consumer_groups_filtered}
+
+        # all non-media requests
+        reverse_proxy unix//var/run/uwsgi/lax.socket {
+
+            # replaces any existing X-Consumer-Groups header
+            header_up X-Consumer-Groups {consumer_groups_filtered}
+
+            transport http {
+                # drop connection after this many seconds.
+                # WARNING: this value *must* be higher than uwsgi's 'harakiri' value (10s): /srv/$app/uwsgi.ini
+                read_timeout 15s # drop connection after 15s if nothing read from reverse proxy.
+            }
+        }
+    }
+
+    respond 404
+}
+
+:80 {
+    import config
+}
+
+{% if salt['elife.cfg']('cfn.outputs.DomainName') %}
+:443 {
+    import ../snippets/certs
+    import config
+}
+{% endif %}

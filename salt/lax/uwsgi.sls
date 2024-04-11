@@ -1,3 +1,19 @@
+{% if pillar.elife.webserver.app == "caddy" %}
+lax-caddy-conf:
+    file.managed:
+        - name: /etc/caddy/sites.d/lax
+        - template: jinja
+        - source: salt://lax/config/etc-caddy-sites.d-lax
+        - require:
+            - file: uwsgi-params
+            - caddy-config
+        - require_in:
+            - cmd: caddy-validate-config
+            - service: uwsgi-lax
+        - watch_in:
+            - caddy-server-service
+
+{% else %}
 lax-nginx-conf:
     file.managed:
         - name: /etc/nginx/sites-enabled/lax.conf
@@ -7,8 +23,11 @@ lax-nginx-conf:
             - file: uwsgi-params
             - pkg: nginx-server
             - cmd: web-ssl-enabled
+        - require_in:
+            - service: uwsgi-lax
         - watch_in:
             - nginx-server-service
+{% endif %}
 
 lax-uwsgi-conf:
     file.managed:
@@ -32,7 +51,6 @@ uwsgi-lax:
         - require:
             - file: uwsgi-service-lax # builder-base-formula.uwsgi
             - file: lax-uwsgi-conf
-            - file: lax-nginx-conf
             - file: lax-log-file
         - watch:
             - file: install-lax
