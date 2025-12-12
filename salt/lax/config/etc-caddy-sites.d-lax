@@ -66,6 +66,7 @@
 
 :80 {
     import config
+    import ../snippets/cve_2025_64459_mitigation
 }
 
 {% if salt['elife.cfg']('cfn.outputs.DomainName') %}
