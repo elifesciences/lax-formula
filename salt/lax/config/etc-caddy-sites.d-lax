@@ -30,7 +30,7 @@
         # Authenticates the api-gateway.
         # Captures the value of the api-gateway "X-Consumer-Groups" HTTP header into the variable `consumer_groups_filtered`,
         # but only if: the request is local (127.0.0.1) or has a valid HTTP Authorization header.
-        # lsh@2024-04-10: translation from nginx modified slightly to add the header as the third segment in the 
+        # lsh@2024-04-10: translation from nginx modified slightly to add the header as the third segment in the
         # regular expression so it's value can be captured. Placeholders (variables) can't otherwise be used.
         # lsh@2024-04-10: how to test this?? using plain curl:
         #   curl -v -H "X-Consumer-Groups: foobar" "http://127.0.0.1/profiles"
@@ -66,11 +66,13 @@
 
 :80 {
     import config
+    import ../snippets/cve_2025_64459_mitigation
 }
 
 {% if salt['elife.cfg']('cfn.outputs.DomainName') %}
 :443 {
     import ../snippets/certs
+    import ../snippets/cve_2025_64459_mitigation
     import config
 }
 {% endif %}
