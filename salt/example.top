@@ -5,7 +5,7 @@ base:
         - elife.disable-nginx
         - elife.caddy
         - elife.uwsgi
-        - elife.postgresql-13
+        - elife.postgresql-14
         - elife.postgresql-appdb
         - elife.external-volume
         - lax
